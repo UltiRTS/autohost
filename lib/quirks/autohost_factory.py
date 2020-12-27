@@ -35,13 +35,13 @@ class AutohostFactory:
 		username = "Autohost_%i" % self.count
 		password = b64encode(md5(b'password').digest()).decode('utf8')
 		self.network.send("REGISTER %s %s" % (username, password)) # TODO: Check for errors
-		command = 'LOGIN %s %s %i %s' % (username, password, cpu, local_ip)
+		command = 'LOGIN %s %s %i %s' % (username, password, 0, '*')
 		self.network.send(command)
 
 		self.network.send("CONFIRMAGREEMENT")
 		self.network.receive()
 		while self.network.hasCmd():
-			print(self.network.nextCmd())
+			print('register response'+self.network.nextCmd())
 		self._save_autohost(username)
 		self.network.disconnect()
 		self.count += 1
