@@ -7,7 +7,7 @@ from termcolor import colored
 class AutohostFactory:
 
 	def __init__(self):
-		self.network = Network()
+		
 		self.idlehosts = SimpleQueue()
 		self.count = 0
 		self._load_autohosts()
@@ -31,19 +31,23 @@ class AutohostFactory:
 
 		print(colored('[INFO]', 'green'), colored('AFAC: Returning'+ username+'to the idle pool.', 'white'))
 	def _new_autohost(self):
-		self.network.connect('ultirts.net')
+		network = Network()
+		network.connect('ultirts.net')
 		username = "Autohost_%i" % self.count
 		password = b64encode(md5(b'password').digest()).decode('utf8')
-		self.network.send("REGISTER %s %s" % (username, password)) # TODO: Check for errors
+		network.send("REGISTER %s %s" % (username, password)) # TODO: Check for errors
+		network.disconnect()
+		network = Network()
+		network.connect('ultirts.net')
 		command = 'LOGIN %s %s %i %s' % (username, password, 0, '*')
-		self.network.send(command)
+		network.send(command)
 
-		self.network.send("CONFIRMAGREEMENT")
-		self.network.receive()
-		while self.network.hasCmd():
-			print('register response'+self.network.nextCmd())
+		network.send("CONFIRMAGREEMENT")
+		network.receive()
+		while network.hasCmd():
+			network.nextCmd()
 		self._save_autohost(username)
-		self.network.disconnect()
+		
 		self.count += 1
 		return username
 

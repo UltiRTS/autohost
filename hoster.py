@@ -6,14 +6,18 @@ from lib.client import Client
 from lib.quirks.unitSync import UnitSync
 from termcolor import colored
 from serverlauncher import ServerLauncher
+from lib.quirks.hosterCTL import hosterCTL
+
 class Battle(threading.Thread):
 
-	def __init__(self,userName,startDir,q, autohostFactory, password, map_file, mod_file, engineName, engineVersion, mapName, roomName, gameName,battlePort):
+	
+
+	def __init__(self,userName, startDir,q, autohostFactory, password, map_file, mod_file, engineName, engineVersion, mapName, roomName, gameName,battlePort):
 		threading.Thread.__init__(self)
 		self.autohost= autohostFactory;
 		self.username = autohostFactory.new_autohost()
 		self.hostedby=userName
-		print(colored('[INFO]', 'green'), colored(self.username+': Autohost account received!.', 'white'))
+		print(colored('[INFO]', 'green'), colored(self.username+': Autohost account received!', 'white'))
 		self.password=password
 		self.map_file=map_file
 		self.mod_file=mod_file
@@ -27,8 +31,12 @@ class Battle(threading.Thread):
 		self.startDir=startDir
 		self.listeners = []
 		self.client = Client(self.battlePort,self.startDir)
-	def run(self):
 
+	def run(self):
+		
+		#hosterCTL={'Archangel':'aaa'}
+		
+		print(hosterCTL)
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		unitSync = UnitSync( self.startDir+'/engine/libunitsync.so')
 		unitSync.startHeshThread(self.map_file,self.mod_file)
@@ -54,33 +62,19 @@ class Battle(threading.Thread):
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
-		bInfo=self.client.battleOpenInfo(self.username).split()
-		#print("bInfo is")
-		#print(bInfo)
-		self.client.joinChat(bInfo[1])
-		#try:
-		#_thread.start_new_thread( client.observeChat,(self.username,))
-		print(colored('[INFO]', 'green'), colored(self.username+': Monitoring Battle Chat.(idling)', 'white'))
-		#except:
-		#	print ("Error: unable to observe chat")
+		
 		self.client.clearBuffer(self.username)
 		while True:
 			#client.ping(self.username)
-			if self.client.hostPresence(self.hostedby, bInfo[1])==False:
+			time.sleep(1)
+			print(self.username+"still running")
+			if hosterCTL[self.hostedby]=="exit":
 				self.client.exit()
 				self.autohost.free_autohost(self.username)
 				return
 			
 		
 
-	def __iadd__(self, listener):
-		"""Shortcut for using += to add a listener."""
-		self.listeners.append(listener)
-		return self
-
-	def notify(self, *args, **kwargs):
-		for listener in self.listeners:
-			listener(*args, **kwargs)
 			
 	def gemStart(self, smolString):
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
