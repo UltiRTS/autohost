@@ -34,9 +34,7 @@ class Battle(threading.Thread):
 
 	def run(self):
 		
-		#hosterCTL={'Archangel':'aaa'}
-		
-		print(hosterCTL)
+
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		unitSync = UnitSync( self.startDir+'/engine/libunitsync.so')
 		unitSync.startHeshThread(self.map_file,self.mod_file)
@@ -67,7 +65,6 @@ class Battle(threading.Thread):
 		while True:
 			#client.ping(self.username)
 			time.sleep(1)
-			print(self.username+"still running")
 			if hosterCTL[self.hostedby]=="exit":
 				self.client.exit()
 				self.autohost.free_autohost(self.username)

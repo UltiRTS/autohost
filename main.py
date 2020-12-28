@@ -10,9 +10,8 @@ from lib.quirks.autohost_factory import AutohostFactory #ability to change crede
 from termcolor import colored
 import lib.cmdInterpreter
 from lib.quirks.hosterCTL import hosterCTL
-
+import lib.quirks.hosterCTL
 #from multiprocessing import SimpleQueue
-
 password = b'password'
 map_file = 'comet_catcher_redux.sd7'
 mod_file = 'Zero-K-master.sdd'
@@ -26,6 +25,7 @@ battlePort = 2000
 startDir = os.getcwd()
 
 
+lib.quirks.hosterCTL.isInetDebug=False   #turn true to enable network msg inspection
 
 if __name__ == "__main__":
 	
@@ -46,22 +46,24 @@ if __name__ == "__main__":
 
 
 	
-	
+
 	BtlPtr=0
 	battle=[]
 # ,'gemType': 'default', 'isPasswded': False, 'passwd':"", 'mapFile': 'comet_catcher_redux.sd7', 'modFile': '0465683c70018f80a17b92ed78174d19.sdz', 'engineName': 'Spring', 'engineVersion': '104.0.1-1435-g79d77ca maintenance', 'mapName': 'Comet Catcher Redux', 'roomName': 'Test Room', 'gameName': 'Zero-K v1.8.3.5'
 	
 	while True:
+		
+
 		#client.ping('Autohost_CTL')
 		msg=lib.cmdInterpreter.cmdRead(client.sysCTLTrigger())[1]
 		#print(gameParas)
 		if 'host' in msg:
 			hosterCTL[msg['user']]='default'	
-			print("hosting"+hosterCTL[msg['user']])
+			
 			battle.append( Battle(msg['user'],startDir,q, autohost, password, map_file, mod_file, engineName, engineVersion, mapName,msg['host'], gameName, battlePort))  # change username, password annd room name everytime call this line
 			battle[BtlPtr].start() #this is non blocking, the loop continues to check cmds
-			
 			BtlPtr+=1
+
 		#if 'start' in msg:
 
 					

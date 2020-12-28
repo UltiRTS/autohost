@@ -41,7 +41,7 @@ class AutohostFactory:
 		network.connect('ultirts.net')
 		command = 'LOGIN %s %s %i %s' % (username, password, 0, '*')
 		network.send(command)
-
+		print(colored('[WARN]', 'red'), colored('AFAC: registering new account '+username, 'white'))
 		network.send("CONFIRMAGREEMENT")
 		network.receive()
 		while network.hasCmd():
@@ -56,7 +56,8 @@ class AutohostFactory:
 			usernames = file.read().split('\n')
 			for username in usernames:
 				if username != '':
-					print("added: %s" % username)
+					
+					print(colored('[INFO]', 'green'), colored('AFAC: added.'+username, 'white'))
 					self.idlehosts.put(username)
 					self.count += 1
 
