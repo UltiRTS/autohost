@@ -1,6 +1,6 @@
 import ctypes
 from multiprocessing.pool import ThreadPool
-
+import os
 
 class UnitSync:
 
@@ -14,7 +14,8 @@ class UnitSync:
         self.async_result = self.pool.apply_async(
             self.getHesh, (map_path, mod_hesh))
 
-    def getResult(self):
+    def getResult(self,startDir):
+        os.chdir(startDir)
         return self.async_result.get()
 
     def getHesh(self, map_path, mod_hesh):

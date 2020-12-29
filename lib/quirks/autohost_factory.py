@@ -4,6 +4,7 @@ from lib.quirks.network import Network
 from base64 import b64encode
 from hashlib import md5
 from termcolor import colored
+
 class AutohostFactory:
 
 	def __init__(self):

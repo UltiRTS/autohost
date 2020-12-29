@@ -38,7 +38,7 @@ class Battle(threading.Thread):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		unitSync = UnitSync( self.startDir+'/engine/libunitsync.so')
 		unitSync.startHeshThread(self.map_file,self.mod_file)
-		unit_sync = unitSync.getResult()
+		unit_sync = unitSync.getResult(self.startDir)
 
 
 		
@@ -49,9 +49,9 @@ class Battle(threading.Thread):
 		print(colored('[INFO]', 'green'), colored(self.username+': Logging in', 'white'))
 		self.client.clearBuffer(self.username)
 		
-		self.client.openBattle(0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.mapName,  self.roomName, self.gameName)
 		_thread.start_new_thread( self.client.keepalive,(self.username,))
-		self.bid=self.client.getbid()
+		self.bid=self.client.openBattle(0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.mapName,  self.roomName, self.gameName)
+
 
 		hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))

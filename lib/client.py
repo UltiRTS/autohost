@@ -42,17 +42,15 @@ class Client():
 		self.network.receive()
 		command = 'OPENBATTLE %i %i %s %i %i %i %i %i %s\t%s\t%s\t%s\t%s' % (battle_type, nat_type, password, port, max_players, mod_hash, rank, map_hash, engine_name, engine_version, map_name, title, game_name)
 		self.network.send(command)
-
-				
-		return
-
-	def getbid(self):
 		while True:
 			self.network.receive()
 			while self.network.hasCmd():
 				response=self.network.nextCmd()
 				if 'BATTLEOPENED' in response:
 					return response.split()[1]
+
+
+
 
 	def startBattle(self):
 		time.sleep(2)
