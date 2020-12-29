@@ -50,11 +50,15 @@ class Battle(threading.Thread):
 		self.client.clearBuffer(self.username)
 		
 		self.client.openBattle(0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.mapName,  self.roomName, self.gameName)
+		_thread.start_new_thread( self.client.keepalive,(self.username,))
+		self.bid=self.client.getbid()
+
+		hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		#client.clearBuffer(self.username)
 
 		
-		_thread.start_new_thread( self.client.keepalive,(self.username,))
+		
 		#client.clearBuffer(self.username)
 		
 		self.client.joinChat('bus')
@@ -65,11 +69,13 @@ class Battle(threading.Thread):
 		while True:
 			#client.ping(self.username)
 			time.sleep(1)
-			if hosterCTL[self.hostedby]=="exit":
+			#print(self.hostedby+"is running with bid"+self.bid)
+			if hosterCTL[self.bid].startswith("left") and self.hostedby in hosterCTL[self.bid]:
 				self.client.exit()
 				self.autohost.free_autohost(self.username)
 				return
 			
+
 		
 
 			
