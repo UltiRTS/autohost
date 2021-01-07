@@ -9,8 +9,7 @@ from hoster import Battle #ability to open battles
 from lib.quirks.autohost_factory import AutohostFactory #ability to change credential to host battles
 from termcolor import colored
 import lib.cmdInterpreter
-from lib.quirks.hosterCTL import hosterCTL
-import lib.quirks.hosterCTL
+from lib.quirks.hosterCTL import hosterCTL, isInetDebug
 #from multiprocessing import SimpleQueue
 password = b'password'
 map_file = 'comet_catcher_redux.sd7'
@@ -67,7 +66,7 @@ if __name__ == "__main__":
 
 		#if 'start' in msg:
 		if 'map' in msg:
-			hosterCTL[msg['bid']]='chmap '+msg['map']+" user"	
+			hosterCTL[msg['bid']]='chmap '+msg['map']+user	
 			
 		if 'leave' in msg:
 			#print("servermsg on leave is"+servermsg.split()[2])

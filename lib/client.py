@@ -19,15 +19,18 @@ class Client():
 		self.startDir=startDir
 	
 	def sysCTLTrigger(self):
-		self.network.receive()
+		while True:
+			self.network.receive()
 		#return "word to split"
-		while self.network.hasCmd():
-			#print("aaanetwork has cmd!")
-			chatBuffer=self.network.nextCmd()
-			#print(chatBuffer)
-			#self.network.receive()
-			if 'sysctl' in chatBuffer:
-				return chatBuffer
+			while self.network.hasCmd():
+				#print("aaanetwork has cmd!")
+				chatBuffer=self.network.nextCmd()
+				#print(chatBuffer)
+				#self.network.receive()
+				if 'sysctl' in chatBuffer:
+					return chatBuffer
+				#else:
+					#print(chatBuffer+"Probably not a cmd line!")
 		return "Probably not a cmd line!"
 
 
@@ -76,10 +79,12 @@ class Client():
 	
 	
 	def joinChat(self, channel):
-
 		command = 'JOIN '+channel
 		self.network.send(command)
 		
+	def sayChat(self, channel, msg):
+		command = 'SAY '+channel+" "+msg
+		self.network.send(command)
 
 	def exit(self):
 		self.network.disconnect()

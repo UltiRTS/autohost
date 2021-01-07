@@ -1,7 +1,6 @@
 import os
-import fnmatch
-import libarchive
-from libarchive import file_reader
+
+from lib.quirks.unitSync import UnitSync
 class ServerLauncher():
 	
 	def __init__(self,startDir,battlePort,players,ais,cmds,username,autohost):
@@ -13,22 +12,7 @@ class ServerLauncher():
 		self.cmds=cmds
 		self.username=username
 		self.autohost=autohost
-	def syn2map(self,filename):
-		files= os.listdir(self.startDir+'/engine/maps')
-		for file in files:
-			if fnmatch.fnmatch(file, filename):
-				print("Actual Mapname="+file);
-				with libarchive.file_reader(self.startDir+'/engine/maps/'+file) as reader:
-					for e in reader:
-					# (The entry evaluates to a filename.)
-						print(e)
-						if e.name[-3:]=='smf' :
-							print("real map name: "+e.name)
-							filename=e.name
-							break;
-				break;
-		print("returning name"+ filename[5:-4])
-		return filename[5:-4]
+
 	
 	def scriptGen(self):
 		os.system('echo [GAME] > /tmp/battle'+str(self.battlePort)+'.txt');
@@ -48,7 +32,7 @@ class ServerLauncher():
 			
 				print("looking for file Mapname="+self.cmds[cmdPtr-1]);
 			
-				os.system('echo "Mapname='+self.syn2map(self.cmds[cmdPtr-1])+';" >> /tmp/battle'+str(self.battlePort)+'.txt');
+				os.system('echo "Mapname='+UnitSync.syn2map(self.cmds[cmdPtr-1])+';" >> /tmp/battle'+str(self.battlePort)+'.txt');
 	##############player gen####################################
 	
 		os.system('echo "NumPlayers='+str(int(len(self.players)/2))+';" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert number of self.players

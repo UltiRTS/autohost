@@ -7,7 +7,8 @@ from lib.quirks.unitSync import UnitSync
 from termcolor import colored
 from serverlauncher import ServerLauncher
 from lib.quirks.hosterCTL import hosterCTL
-
+import lib.cmdInterpreter
+import random
 class Battle(threading.Thread):
 
 	
@@ -31,14 +32,36 @@ class Battle(threading.Thread):
 		self.startDir=startDir
 		self.listeners = []
 		self.client = Client(self.battlePort,self.startDir)
-
+		self.unitSync = UnitSync( self.startDir+'/engine/libunitsync.so')
+	
+	def gemStart(self, smolString):
+		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
+		players=['Archangel',0]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
+		ais=['CircuitAI',1] #virtually the same as the player scheme but direct bot section behavior
+		args=['map','co*ca*re*.sd7'] #command arguments.
+		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
+		server=ServerLauncher(self.startDir,self.battlePort,players,ais,args,self.username,self.autohost)
+		server.scriptGen() #generate the script
+		self.client.startBattle()
+		server.launch()
+		#time.sleep(2)
+		
+		
+	def listMap(self):
+		mapList = random.sample(self.unitSync.mapList().split(), 5)
+		mapList = ' '.join(mapList)
+		print(colored('[INFO]', 'green'), colored(self.username+': Listing map with cmd:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': mapList}), 'white'))
+		
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': mapList}))
+	
+	
 	def run(self):
 		
 
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
-		unitSync = UnitSync( self.startDir+'/engine/libunitsync.so')
-		unitSync.startHeshThread(self.map_file,self.mod_file)
-		unit_sync = unitSync.getResult(self.startDir)
+		
+		self.unitSync.startHeshThread(self.map_file,self.mod_file)
+		unit_sync = self.unitSync.getResult(self.startDir)
 
 
 		
@@ -64,7 +87,7 @@ class Battle(threading.Thread):
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
-		
+		self.client.sayChat('bus',self.listMap())
 		self.client.clearBuffer(self.username)
 		while True:
 			#client.ping(self.username)
@@ -75,19 +98,4 @@ class Battle(threading.Thread):
 				self.autohost.free_autohost(self.username)
 				return
 			
-
-		
-
-			
-	def gemStart(self, smolString):
-		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
-		players=['Archangel',0]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
-		ais=['CircuitAI',1] #virtually the same as the player scheme but direct bot section behavior
-		args=['map','co*ca*re*.sd7'] #command arguments.
-		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
-		server=ServerLauncher(self.startDir,self.battlePort,players,ais,args,self.username,self.autohost)
-		server.scriptGen() #generate the script
-		self.client.startBattle()
-		server.launch()
-		#time.sleep(2)
 #sock.close()
