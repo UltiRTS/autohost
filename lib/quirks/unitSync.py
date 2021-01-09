@@ -32,14 +32,13 @@ class UnitSync:
 		return unit_sync
 	
 	def syn2map(self,filename):
-		print('looking for'+filename)
+		
 		files= os.listdir(self.startdir+'/engine/maps')
-		print('test 11111111')
+		
 		for file in files:
-			print('test 22222222')
+			
 			if fnmatch.fnmatch(file, filename):
-				print("Actual Mapname="+file);
-				print('test 33333333')
+				
 				with libarchive.file_reader(self.startdir+'/engine/maps/'+file) as reader:
 					for e in reader:
 					# (The entry evaluates to a filename.)
