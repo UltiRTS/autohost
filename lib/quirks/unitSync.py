@@ -42,7 +42,7 @@ class UnitSync:
 				with libarchive.file_reader(self.startdir+'/engine/maps/'+file) as reader:
 					for e in reader:
 					# (The entry evaluates to a filename.)
-						print(e)
+						
 						if e.name[-3:]=='smf' :
 							print("real map name: "+e.name)
 							filename=e.name
