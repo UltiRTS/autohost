@@ -4,22 +4,24 @@ import os
 import fnmatch
 import libarchive
 from libarchive import file_reader
+from termcolor import colored
 
 
 
 class UnitSync:
-	def __init__(self, libunitsync_path):
+	def __init__(self, startdir,libunitsync_path,username):
 		self.so = ctypes.CDLL(libunitsync_path)
 		self.init = self.so.Init(0, 0)
 		self.write_dir = self.so.GetWritableDataDirectory()
-
+		self.username=username
+		self.startdir=startdir
 	def startHeshThread(self, map_path, mod_hesh):
 		self.pool = ThreadPool(processes=1)
 		self.async_result = self.pool.apply_async(
 		self.getHesh, (map_path, mod_hesh))
 
-	def getResult(self,startDir):
-		os.chdir(startDir)
+	def getResult(self):
+		os.chdir(self.startdir)
 		return self.async_result.get()
 
 	def getHesh(self, map_path, mod_hesh):
@@ -30,11 +32,15 @@ class UnitSync:
 		return unit_sync
 	
 	def syn2map(self,filename):
-		files= os.listdir('./engine/maps')
+		print('looking for'+filename)
+		files= os.listdir(self.startdir+'/engine/maps')
+		print('test 11111111')
 		for file in files:
+			print('test 22222222')
 			if fnmatch.fnmatch(file, filename):
 				print("Actual Mapname="+file);
-				with libarchive.file_reader(self.startDir+'./engine/maps/'+file) as reader:
+				print('test 33333333')
+				with libarchive.file_reader(self.startdir+'/engine/maps/'+file) as reader:
 					for e in reader:
 					# (The entry evaluates to a filename.)
 						print(e)
@@ -43,8 +49,9 @@ class UnitSync:
 							filename=e.name
 							break;
 				break;
-		print("returning name"+ filename[5:-4])
-		return filename[5:-4]
+
+		print(colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile'+filename[5:-4], 'white'))
+		return {'mapName':filename[5:-4],'fileName':file}
 	
 	def mapList(self):
 		mapList=''

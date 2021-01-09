@@ -53,7 +53,10 @@ class Client():
 					return response.split()[1]
 
 
-
+	def updateBInfo(self,mapHash, mapName):
+		command = 'UPDATEBATTLEINFO 1 0 %s %s' % (mapHash, mapName)
+		print('sending '+command)
+		self.network.send(command)
 
 	def startBattle(self):
 		time.sleep(2)

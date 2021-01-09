@@ -7,13 +7,15 @@ from lib.quirks.unitSync import UnitSync
 from termcolor import colored
 from serverlauncher import ServerLauncher
 from lib.quirks.hosterCTL import hosterCTL
+import lib.quirks.hosterCTL
+
 import lib.cmdInterpreter
 import random
 class Battle(threading.Thread):
 
 	
 
-	def __init__(self,userName, startDir,q, autohostFactory, password, map_file, mod_file, engineName, engineVersion, mapName, roomName, gameName,battlePort):
+	def __init__(self,userName, startDir,q, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort):
 		threading.Thread.__init__(self)
 		self.autohost= autohostFactory;
 		self.username = autohostFactory.new_autohost()
@@ -24,7 +26,6 @@ class Battle(threading.Thread):
 		self.mod_file=mod_file
 		self.engineName=engineName
 		self.engineVersion=engineVersion
-		self.mapName=mapName
 		self.roomName=roomName
 		self.gameName=gameName
 		self.q=q
@@ -32,7 +33,7 @@ class Battle(threading.Thread):
 		self.startDir=startDir
 		self.listeners = []
 		self.client = Client(self.battlePort,self.startDir)
-		self.unitSync = UnitSync( self.startDir+'/engine/libunitsync.so')
+		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 	
 	def gemStart(self, smolString):
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
@@ -60,8 +61,15 @@ class Battle(threading.Thread):
 
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		
-		self.unitSync.startHeshThread(self.map_file,self.mod_file)
-		unit_sync = self.unitSync.getResult(self.startDir)
+		
+		
+		mapInfo=self.unitSync.syn2map(self.map_file)
+		map_file=mapInfo['fileName']
+		map_name=mapInfo['mapName']
+
+				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
+		self.unitSync.startHeshThread(map_file,self.mod_file)
+		unit_sync = self.unitSync.getResult()
 
 
 		
@@ -73,7 +81,7 @@ class Battle(threading.Thread):
 		self.client.clearBuffer(self.username)
 		
 		_thread.start_new_thread( self.client.keepalive,(self.username,))
-		self.bid=self.client.openBattle(0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.mapName,  self.roomName, self.gameName)
+		self.bid=self.client.openBattle(0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, map_name,  self.roomName, self.gameName)
 
 
 		hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
@@ -98,4 +106,25 @@ class Battle(threading.Thread):
 				self.autohost.free_autohost(self.username)
 				return
 			
+			if hosterCTL[self.bid].startswith("chmap") and self.hostedby in hosterCTL[self.bid]:
+				
+				
+				
+				
+				mapInfo=self.unitSync.syn2map(hosterCTL[self.bid].split()[1])
+				map_file=mapInfo['fileName']
+				map_name=mapInfo['mapName']
+
+				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
+				self.unitSync.startHeshThread(map_file,self.mod_file)
+				unit_sync = self.unitSync.getResult()
+				
+				
+				
+				self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+				hosterCTL[self.bid]='null'
+				
+			if lib.quirks.hosterCTL.isInetDebug:
+				self.client.clearBuffer(self.username)
+
 #sock.close()
