@@ -4,6 +4,7 @@ from lib.quirks.network import Network
 from base64 import b64encode
 from hashlib import md5
 from termcolor import colored
+import lib.quirks.hosterCTL
 
 class AutohostFactory:
 
@@ -43,12 +44,23 @@ class AutohostFactory:
 		command = 'LOGIN %s %s %i %s' % (username, password, 0, '*')
 		network.send(command)
 		print(colored('[WARN]', 'red'), colored('AFAC: registering new account '+username, 'white'))
-		network.send("CONFIRMAGREEMENT")
+		
 		network.receive()
 		while network.hasCmd():
-			network.nextCmd()
+			if lib.quirks.hosterCTL.isInetDebug:
+				print(colored('[AFAC]', 'grey'), colored(username+': '+network.nextCmd(), 'white'))
+			else:
+				network.nextCmd()
+		time.sleep(10)
+		network.send("CONFIRMAGREEMENT")
 		self._save_autohost(username)
-		
+		network.receive()
+		while network.hasCmd():
+			if lib.quirks.hosterCTL.isInetDebug:
+				print(colored('[AFAC]', 'grey'), colored(username+': '+network.nextCmd(), 'white'))
+			else:
+				network.nextCmd()
+		network.disconnect()
 		self.count += 1
 		return username
 
