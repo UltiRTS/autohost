@@ -53,7 +53,7 @@ class Battle(threading.Thread):
 		mapList = ' '.join(mapList)
 		print(colored('[INFO]', 'green'), colored(self.username+': Listing map with cmd:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': mapList}), 'white'))
 		
-		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': mapList}))
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'room':self.bid,'available-maps': mapList}))
 	
 	
 	def run(self):

@@ -23,7 +23,7 @@ battlePort = 2000
 startDir = os.getcwd()
 
 
-lib.quirks.hosterCTL.isInetDebug=True   #turn true to enable network msg inspection
+lib.quirks.hosterCTL.isInetDebug=False   #turn true to enable network msg inspection
 
 if __name__ == "__main__":
 	
