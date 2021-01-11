@@ -71,7 +71,8 @@ if __name__ == "__main__":
 			#print("servermsg on leave is"+servermsg.split()[2])
 			hosterCTL[msg['bid']]="left "+user       
 
-		
+		if 'start' in msg:
+			hosterCTL[msg['bid']]="start "+user  
 
 	#time.sleep(10)
 	#battle2 = Battle(startDir,q, autohost, password, map_file, mod_file, engineName, engineVersion, mapName, 'aaa', gameName, battlePort)  # change username, and room name everytime call this line

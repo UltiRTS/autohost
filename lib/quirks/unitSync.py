@@ -54,7 +54,7 @@ class UnitSync:
 	
 	def mapList(self):
 		mapList=''
-		files= os.listdir('./engine/maps')
+		files= os.listdir(self.startdir+'/engine/maps')
 		for file in files:
 			mapList+=file+' '
 		return mapList

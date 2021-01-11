@@ -38,7 +38,7 @@ class Battle(threading.Thread):
 	def gemStart(self, smolString):
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
 		players=['Archangel',0]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
-		ais=['CircuitAI',1] #virtually the same as the player scheme but direct bot section behavior
+		ais=['CircuitAI',1] #virtually the same as the player scheme but directs bot section behavior
 		args=['map','co*ca*re*.sd7'] #command arguments.
 		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
 		server=ServerLauncher(self.startDir,self.battlePort,players,ais,args,self.username,self.autohost)
@@ -57,41 +57,29 @@ class Battle(threading.Thread):
 	
 	
 	def run(self):
-		
-
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
-		
-		
 		
 		mapInfo=self.unitSync.syn2map(self.map_file)
 		map_file=mapInfo['fileName']
 		map_name=mapInfo['mapName']
 
-				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
-		self.unitSync.startHeshThread(map_file,self.mod_file)
-		unit_sync = self.unitSync.getResult()
-
-
-		
-		
-		
+		#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
+		#self.unitSync.startHeshThread(map_file,self.mod_file)
+		#unit_sync = self.unitSync.getResult()
+		unit_sync = {"mapHesh":-1710297209,"modHesh":-1710297209}
 		self.client.login(self.username,self.password)
 
 		print(colored('[INFO]', 'green'), colored(self.username+': Logging in', 'white'))
 		self.client.clearBuffer(self.username)
 		
 		_thread.start_new_thread( self.client.keepalive,(self.username,))
-		self.bid=self.client.openBattle(0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, map_name,  self.roomName, self.gameName)
+		self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, map_name,  self.roomName, self.gameName)
 
 
 		hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		#client.clearBuffer(self.username)
 
-		
-		
-		#client.clearBuffer(self.username)
-		
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
@@ -107,23 +95,19 @@ class Battle(threading.Thread):
 				return
 			
 			if hosterCTL[self.bid].startswith("chmap") and self.hostedby in hosterCTL[self.bid]:
-				
-				
-				
-				
 				mapInfo=self.unitSync.syn2map(hosterCTL[self.bid].split()[1])
 				map_file=mapInfo['fileName']
 				map_name=mapInfo['mapName']
-
 				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
 				self.unitSync.startHeshThread(map_file,self.mod_file)
 				unit_sync = self.unitSync.getResult()
-				
-				
-				
 				self.client.updateBInfo(unit_sync['mapHesh'],map_name)
 				hosterCTL[self.bid]='null'
-				
+			
+			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
+				print('users in btl: '+ str(self.client.getUserinChat(self.bid,self.username)))
+				hosterCTL[self.bid]='null'
+
 			if lib.quirks.hosterCTL.isInetDebug:
 				self.client.clearBuffer(self.username)
 

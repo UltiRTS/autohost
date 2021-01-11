@@ -41,7 +41,7 @@ class Client():
 
 
 
-	def openBattle(self, battle_type, nat_type, password, port, max_players, mod_hash, rank, map_hash, engine_name, engine_version, map_name, title, game_name):
+	def openBattle(self,username, battle_type, nat_type, password, port, max_players, mod_hash, rank, map_hash, engine_name, engine_version, map_name, title, game_name):
 		self.network.receive()
 		command = 'OPENBATTLE %i %i %s %i %i %i %i %i %s\t%s\t%s\t%s\t%s' % (battle_type, nat_type, password, port, max_players, mod_hash, rank, map_hash, engine_name, engine_version, map_name, title, game_name)
 		self.network.send(command)
@@ -49,7 +49,7 @@ class Client():
 			self.network.receive()
 			while self.network.hasCmd():
 				response=self.network.nextCmd()
-				if 'BATTLEOPENED' in response:
+				if 'BATTLEOPENED' in response and username in response:
 					return response.split()[1]
 
 
@@ -91,6 +91,30 @@ class Client():
 
 	def exit(self):
 		self.network.disconnect()
+		
+	def getUserinChat(self,channel,selAccount):
+		self.joinChat(channel)
+		#print('aaa')
+		while True:
+			#print('bbb')
+			self.network.receive()
+			while self.network.hasCmd():
+				#print('ccc')
+				response=self.network.nextCmd().split()
+				try:
+					if 'CLIENTS' in response[0]:
+						if channel in response[1]:
+							self.leaveChat(channel)
+							#print('self acc: '+selAccount)
+							
+							response.remove(selAccount)
+							return response[2:]
+				except:
+					continue
+
+	def leaveChat(self, channel):
+		command = 'LEAVE '+channel
+		self.network.send(command)
 
 	def clearBuffer(self, username):
 		self.network.receive()	
