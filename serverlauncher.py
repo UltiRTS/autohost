@@ -12,6 +12,7 @@ class ServerLauncher():
 		self.cmds=cmds
 		self.username=username
 		self.autohost=autohost
+		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 
 	
 	def scriptGen(self):
@@ -32,7 +33,7 @@ class ServerLauncher():
 			
 				print("looking for file Mapname="+self.cmds[cmdPtr-1]);
 			
-				os.system('echo "Mapname='+UnitSync.syn2map(self.cmds[cmdPtr-1])+';" >> /tmp/battle'+str(self.battlePort)+'.txt');
+				os.system('echo "Mapname='+str(self.unitSync.syn2map(self.cmds[cmdPtr-1])['fileName'])+';" >> /tmp/battle'+str(self.battlePort)+'.txt');
 	##############player gen####################################
 	
 		os.system('echo "NumPlayers='+str(int(len(self.players)/2))+';" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert number of self.players

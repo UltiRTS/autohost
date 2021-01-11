@@ -8,7 +8,7 @@ from termcolor import colored
 from serverlauncher import ServerLauncher
 from lib.quirks.hosterCTL import hosterCTL
 import lib.quirks.hosterCTL
-
+import os
 import lib.cmdInterpreter
 import random
 class Battle(threading.Thread):
@@ -37,8 +37,8 @@ class Battle(threading.Thread):
 	
 	def gemStart(self, smolString):
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
-		players=['Archangel',0]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
-		ais=['CircuitAI',1] #virtually the same as the player scheme but directs bot section behavior
+		players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
+		ais=[] #virtually the same as the player scheme but directs bot section behavior
 		args=['map','co*ca*re*.sd7'] #command arguments.
 		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
 		server=ServerLauncher(self.startDir,self.battlePort,players,ais,args,self.username,self.autohost)
@@ -46,7 +46,6 @@ class Battle(threading.Thread):
 		self.client.startBattle()
 		server.launch()
 		#time.sleep(2)
-		
 		
 	def listMap(self):
 		mapList = random.sample(self.unitSync.mapList().split(), 5)
@@ -105,7 +104,7 @@ class Battle(threading.Thread):
 				hosterCTL[self.bid]='null'
 			
 			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
-				print('users in btl: '+ str(self.client.getUserinChat(self.bid,self.username)))
+				self.gemStart(self.client.getUserinChat(self.bid,self.username))
 				hosterCTL[self.bid]='null'
 
 			if lib.quirks.hosterCTL.isInetDebug:
