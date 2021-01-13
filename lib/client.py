@@ -59,10 +59,14 @@ class Client():
 		self.network.send(command)
 
 	def startBattle(self):
-		time.sleep(2)
+		
 		command = 'MYSTATUS 1'
 		self.network.send(command)
-
+	
+	def stopBattle(self):
+		
+		command = 'MYSTATUS 0'
+		self.network.send(command)
 
 	def keepalive(self,username):
 		command = 'PING'
@@ -95,6 +99,8 @@ class Client():
 	def getUserinChat(self,channel,selAccount):
 		self.joinChat(channel)
 		#print('aaa')
+		pindex=0
+		playerMatrix={}
 		while True:
 			#print('bbb')
 			self.network.receive()
@@ -106,9 +112,18 @@ class Client():
 						if channel in response[1]:
 							self.leaveChat(channel)
 							#print('self acc: '+selAccount)
-							
+							 
 							response.remove(selAccount)
-							return response[2:]
+							response=response[2:]
+							print (response)
+							print('aaaa')
+							for i in response:
+								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex}
+								print('bbb')
+								print (playerMatrix[i])
+								pindex+=1
+								
+							return playerMatrix
 				except:
 					continue
 

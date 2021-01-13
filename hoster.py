@@ -35,17 +35,19 @@ class Battle(threading.Thread):
 		self.client = Client(self.battlePort,self.startDir)
 		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 	
-	def gemStart(self, smolString):
+	def gemStart(self, players,numTeams,xtraOptions={}):
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
-		players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
-		ais=[] #virtually the same as the player scheme but directs bot section behavior
-		args=['map','co*ca*re*.sd7'] #command arguments.
+		#players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
+		#ais=[] #virtually the same as the player scheme but directs bot section behavior
+		xtraOptions['map']=self.map_file #command arguments.
 		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
-		server=ServerLauncher(self.startDir,self.battlePort,players,ais,args,self.username,self.autohost)
+		server=ServerLauncher(self.startDir,self.battlePort,players,xtraOptions,self.username,numTeams)
 		server.scriptGen() #generate the script
 		self.client.startBattle()
 		server.launch()
 		#time.sleep(2)
+		
+		self.client.stopBattle()
 		
 	def listMap(self):
 		mapList = random.sample(self.unitSync.mapList().split(), 5)
@@ -54,7 +56,31 @@ class Battle(threading.Thread):
 		
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'room':self.bid,'available-maps': mapList}))
 	
-	
+	def balance(self,ppl,gemType):
+		i=0
+		if gemType=='fafafa':
+			self.gemStart()
+			
+		elif gemType=="teams":
+			for player in ppl:
+				
+				if i>=len(ppl)/2:
+					#print('aaa')
+					ppl[player]['team']=1
+					#ppl.values()[i]['team']=0
+				else:
+					#print('bbb')
+					ppl[player]['team']=0
+					#player['team']=1
+					#ppl.values()[i]['team']=1
+				i+=1
+			print('player config'+str(ppl))
+			self.gemStart(ppl,2)
+			
+		elif gemType=="pve":
+			self.gemStart()
+			
+			
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		
@@ -94,17 +120,21 @@ class Battle(threading.Thread):
 				return
 			
 			if hosterCTL[self.bid].startswith("chmap") and self.hostedby in hosterCTL[self.bid]:
-				mapInfo=self.unitSync.syn2map(hosterCTL[self.bid].split()[1])
+				self.map_file=hosterCTL[self.bid].split()[1]
+				mapInfo=self.unitSync.syn2map(self.map_file)
 				map_file=mapInfo['fileName']
 				map_name=mapInfo['mapName']
 				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
 				self.unitSync.startHeshThread(map_file,self.mod_file)
 				unit_sync = self.unitSync.getResult()
 				self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+				
 				hosterCTL[self.bid]='null'
 			
 			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
-				self.gemStart(self.client.getUserinChat(self.bid,self.username))
+				
+				#self.client.getUserinChat(self.bid,self.username)
+				self.balance(self.client.getUserinChat(self.bid,self.username),'teams')
 				hosterCTL[self.bid]='null'
 
 			if lib.quirks.hosterCTL.isInetDebug:
