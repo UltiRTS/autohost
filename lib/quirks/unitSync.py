@@ -15,13 +15,17 @@ class UnitSync:
 		self.write_dir = self.so.GetWritableDataDirectory()
 		self.username=username
 		self.startdir=startdir
+		os.chdir(self.startdir)
+		
 	def startHeshThread(self, map_path, mod_hesh):
 		self.pool = ThreadPool(processes=1)
 		self.async_result = self.pool.apply_async(
 		self.getHesh, (map_path, mod_hesh))
+		os.chdir(self.startdir)
 
 	def getResult(self):
 		os.chdir(self.startdir)
+		
 		return self.async_result.get()
 
 	def getHesh(self, map_path, mod_hesh):
@@ -29,6 +33,7 @@ class UnitSync:
 			'mapHesh': self.so.GetMapChecksumFromName(map_path.encode()),
 			'modHesh': self.so.GetPrimaryModChecksumFromName(mod_hesh.encode()),
 		}
+		os.chdir(self.startdir)
 		return unit_sync
 	
 	def syn2map(self,filename):
@@ -50,6 +55,7 @@ class UnitSync:
 				break;
 
 		print(colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile'+filename[5:-4], 'white'))
+		os.chdir(self.startdir)
 		return {'mapName':filename[5:-4],'fileName':file}
 	
 	def mapList(self):
@@ -57,5 +63,6 @@ class UnitSync:
 		files= os.listdir(self.startdir+'/engine/maps')
 		for file in files:
 			mapList+=file+' '
+		os.chdir(self.startdir)
 		return mapList
 		
