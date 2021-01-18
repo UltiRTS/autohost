@@ -127,5 +127,5 @@ class ServerLauncher():
 		
 
 	def launch(self):
-		os.system('./spring-dedicated /tmp/battle'+str(self.battlePort)+'.txt');
+		os.system('./engine/spring-dedicated /tmp/battle'+str(self.battlePort)+'.txt');
 		#self.autohost.free_autohost(self.username)

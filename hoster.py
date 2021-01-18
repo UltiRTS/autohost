@@ -39,7 +39,7 @@ class Battle(threading.Thread):
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
 		#players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
 		#ais=[] #virtually the same as the player scheme but directs bot section behavior
-		xtraOptions['map']=self.map_file #command arguments.
+		xtraOptions['map']=self.map_file 
 		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
 		server=ServerLauncher(self.startDir,self.battlePort,players,xtraOptions,self.username,numTeams)
 		server.scriptGen() #generate the script

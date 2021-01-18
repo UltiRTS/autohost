@@ -55,7 +55,8 @@ class Client():
 
 	def updateBInfo(self,mapHash, mapName):
 		command = 'UPDATEBATTLEINFO 1 0 %s %s' % (mapHash, mapName)
-		print('sending '+command)
+		if lib.quirks.hosterCTL.isInetDebug:
+			print('sending '+command)
 		self.network.send(command)
 
 	def startBattle(self):
