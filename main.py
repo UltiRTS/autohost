@@ -73,7 +73,11 @@ if __name__ == "__main__":
 
 		if 'start' in msg:
 			hosterCTL[msg['bid']]="start "+user  
-
+		
+		if 'player' in msg:
+			
+			hosterCTL[msg['bid']]="changeTeams "+user+" "+msg['player']
+			print ("sending："+hosterCTL[msg['bid']])
 	#time.sleep(10)
 	#battle2 = Battle(startDir,q, autohost, password, map_file, mod_file, engineName, engineVersion, mapName, 'aaa', gameName, battlePort)  # change username, and room name everytime call this line
 	#time.sleep(1)

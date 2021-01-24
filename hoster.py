@@ -35,6 +35,28 @@ class Battle(threading.Thread):
 		self.client = Client(self.battlePort,self.startDir)
 		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 	
+	def letter2Teams(self,playerCMD):
+		receivedStr= playerCMD.split(" ")
+		n=0
+		cmdDict={}
+		players={}
+		while n<len(receivedStr)-1:
+			cmdDict[receivedStr[n+1]]=[]
+			n=n+2
+		n=0
+
+		while n<len(receivedStr):
+			cmdDict[receivedStr[n+1]].insert(0,receivedStr[n])
+			n=n+2
+		i=0
+
+		for key in cmdDict:
+			for player in cmdDict[key]:
+				players[player]=i
+			i=i+1
+		print("l2teams:"+str(players))
+		return(players)
+	
 	def gemStart(self, players,numTeams,xtraOptions={}):
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
 		#players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
@@ -46,7 +68,6 @@ class Battle(threading.Thread):
 		self.client.startBattle()
 		server.launch()
 		#time.sleep(2)
-		
 		self.client.stopBattle()
 		
 	def listMap(self):
@@ -56,7 +77,7 @@ class Battle(threading.Thread):
 		
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'room':self.bid,'available-maps': mapList}))
 	
-	def balance(self,ppl,gemType):
+	def balance(self,ppl,gemType,preDefined="false"):
 		i=0
 		if gemType=='fafafa':
 			self.gemStart()
@@ -79,8 +100,21 @@ class Battle(threading.Thread):
 			
 		elif gemType=="pve":
 			self.gemStart()
+		
+		elif gemType=="custom":
+			result=self.letter2Teams(preDefined)
+			for player in ppl:
+				try:
+					ppl[player]['team']=result[player]
+				except:
+					print(colored('[INFO]', 'green'), colored(self.username+': Player '+player+" has unassigned team!", 'white'))
+			print('player config'+str(ppl))
+			self.gemStart(ppl,2)
 			
-			
+	def teamAssign(self,teamConfig):
+		print(colored('[INFO]', 'green'), colored(self.username+': Returning teamConfig:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'player': teamConfig}), 'white'))
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','room':self.bid,'player': teamConfig}))
+	
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		
@@ -104,7 +138,7 @@ class Battle(threading.Thread):
 		hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		#client.clearBuffer(self.username)
-
+		teamConfig=''
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
@@ -128,15 +162,21 @@ class Battle(threading.Thread):
 				self.unitSync.startHeshThread(map_file,self.mod_file)
 				unit_sync = self.unitSync.getResult()
 				self.client.updateBInfo(unit_sync['mapHesh'],map_name)
-				
 				hosterCTL[self.bid]='null'
 			
 			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
 				
 				#self.client.getUserinChat(self.bid,self.username)
-				self.balance(self.client.getUserinChat(self.bid,self.username),'teams')
+				self.balance(self.client.getUserinChat(self.bid,self.username),'custom',teamConfig)
 				hosterCTL[self.bid]='null'
 
+			if hosterCTL[self.bid].startswith("changeTeams") and self.hostedby in hosterCTL[self.bid]:
+				teamConfig=' '
+				teamConfig=teamConfig.join(hosterCTL[self.bid].split()[2:])
+				print('teamConfig:'+str(teamConfig))
+				hosterCTL[self.bid]='null'
+				self.client.sayChat('bus',self.teamAssign(teamConfig))
+				
 			if lib.quirks.hosterCTL.isInetDebug:
 				self.client.clearBuffer(self.username)
 

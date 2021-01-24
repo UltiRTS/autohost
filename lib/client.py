@@ -116,11 +116,11 @@ class Client():
 							 
 							response.remove(selAccount)
 							response=response[2:]
-							print (response)
-							print('aaaa')
+							#print (response)
+							#print('aaaa')
 							for i in response:
 								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex}
-								print('bbb')
+								#print('bbb')
 								print (playerMatrix[i])
 								pindex+=1
 								
