@@ -45,7 +45,7 @@ class Battle(threading.Thread):
 			n=n+2
 		n=0
 
-		while n<len(receivedStr):
+		while n<len(receivedStr)-1:
 			cmdDict[receivedStr[n+1]].insert(0,receivedStr[n])
 			n=n+2
 		i=0
