@@ -52,15 +52,19 @@ class ServerLauncher():
 				os.system('echo "Host=0;" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 				os.system('echo } >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 
-
-		for player in self.players:
+     ############player gen###############################################
+		for player in self.players:     #for every single player, do this:
+			leaderIndex=0
+			for possibleLeader in self.players:
+				if self.players[possibleLeader]['isLeader']==True and self.players[possibleLeader]['team']==self.players[player]['team']:    #loop through the config, find ones that's designated as leader AND in the same team as the player that's being configed ATM
+					leaderIndex=self.players[possibleLeader]['index']
 			
 			os.system('echo "[TEAM'+str(self.teamPtr)+']" >> /tmp/battle'+str(self.battlePort)+'.txt');
 			os.system('echo { >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 			os.system('echo "AllyTeam='+str(self.players[player]['team'])+';" >> /tmp/battle'+str(self.battlePort)+'.txt');
 			os.system('echo "Side=Arm;" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 			os.system('echo "Handicap=0;" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
-			os.system('echo "TeamLeader=0;" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
+			os.system('echo "TeamLeader='+str(leaderIndex) +';" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 			os.system('echo "}" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 			self.teamPtr+=1;
 			

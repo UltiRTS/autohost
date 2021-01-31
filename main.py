@@ -73,6 +73,9 @@ if __name__ == "__main__":
 		if 'start' in msg:
 			hosterCTL[msg['bid']]="start "+user  
 		
+		if 'leader' in msg:
+			hosterCTL[msg['bid']]="leader "+msg['leader']+" "+user
+		
 		if 'player' in msg:
 			
 			hosterCTL[msg['bid']]="changeTeams "+user+" "+msg['player']

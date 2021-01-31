@@ -77,7 +77,7 @@ class Battle(threading.Thread):
 		
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'room':self.bid,'available-maps': mapList}))
 	
-	def balance(self,ppl,gemType,preDefined="false"):
+	def balance(self,ppl,gemType,leaderConfig,preDefined="false"):
 		i=0
 		if gemType=='fafafa':
 			self.gemStart()
@@ -103,12 +103,20 @@ class Battle(threading.Thread):
 		
 		elif gemType=="custom":
 			result=self.letter2Teams(preDefined)
-			for player in ppl:
+			for player in ppl:                      #apply team designation to ppl matrix
 				try:
 					ppl[player]['team']=result[player]
 				except:
 					print(colored('[INFO]', 'green'), colored(self.username+': Player '+player+" has unassigned team!", 'white'))
-			print('player config'+str(ppl))
+					
+			for team in leaderConfig:             #for every leader, find the player in the ppl matrix, and set their leader status to true
+				for player in ppl:
+					#print('currently in team '+str(team))
+					#print('currently setting up'+player+' in team '+str(ppl[player]['team']))
+					if leaderConfig[team]==player:
+						ppl[player]['isLeader']=True
+						
+			print('player custom config'+str(ppl))
 			self.gemStart(ppl,2)
 			
 	def teamAssign(self,teamConfig):
@@ -139,6 +147,7 @@ class Battle(threading.Thread):
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		#client.clearBuffer(self.username)
 		teamConfig=''
+		leaderConfig={}
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
@@ -168,9 +177,10 @@ class Battle(threading.Thread):
 				hosterCTL[self.bid]='null'
 			
 			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
-				
+				ppl=self.client.getUserinChat(self.bid,self.username)
 				#self.client.getUserinChat(self.bid,self.username)
-				self.balance(self.client.getUserinChat(self.bid,self.username),'custom',teamConfig)
+				
+				self.balance(ppl,'custom',leaderConfig,teamConfig)
 				hosterCTL[self.bid]='null'
 
 			if hosterCTL[self.bid].startswith("changeTeams") and self.hostedby in hosterCTL[self.bid]:
@@ -179,6 +189,13 @@ class Battle(threading.Thread):
 				print('teamConfig:'+str(teamConfig))
 				hosterCTL[self.bid]='null'
 				self.client.sayChat('bus',self.teamAssign(teamConfig))
+				
+			if hosterCTL[self.bid].startswith("leader") and hosterCTL[self.bid].endswith(self.hostedby):
+				
+				leaderConfig[hosterCTL[self.bid].split()[1]]=hosterCTL[self.bid].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
+				print(hosterCTL[self.bid].split()[1:3])
+				hosterCTL[self.bid]='null'
+				
 				
 			if lib.quirks.hosterCTL.isInetDebug:
 				self.client.clearBuffer(self.username)

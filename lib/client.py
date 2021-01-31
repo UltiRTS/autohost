@@ -119,7 +119,7 @@ class Client():
 							#print (response)
 							#print('aaaa')
 							for i in response:
-								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex}
+								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False}
 								#print('bbb')
 								print (playerMatrix[i])
 								pindex+=1
