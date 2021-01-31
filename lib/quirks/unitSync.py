@@ -3,8 +3,6 @@ from multiprocessing.pool import ThreadPool
 import os
 import fnmatch
 import re
-import libarchive
-from libarchive import file_reader
 from termcolor import colored
 
 
