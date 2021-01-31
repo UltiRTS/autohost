@@ -17,23 +17,23 @@ class Battle(threading.Thread):
 
 	def __init__(self,userName, startDir,q, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort):
 		threading.Thread.__init__(self)
-		self.autohost= autohostFactory;
+		self.autohost = autohostFactory;
 		self.username = autohostFactory.new_autohost()
-		self.hostedby=userName
+		self.hostedby = userName
 		print(colored('[INFO]', 'green'), colored(self.username+': Autohost account received!', 'white'))
-		self.password=password
-		self.map_file=map_file
-		self.mod_file=mod_file
-		self.engineName=engineName
-		self.engineVersion=engineVersion
-		self.roomName=roomName
-		self.gameName=gameName
-		self.q=q
-		self.battlePort=battlePort
-		self.startDir=startDir
-		self.listeners = []
-		self.client = Client(self.battlePort,self.startDir)
-		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
+		self.password      = password
+		self.map_file      = map_file
+		self.mod_file      = mod_file
+		self.engineName    = engineName
+		self.engineVersion = engineVersion
+		self.roomName      = roomName
+		self.gameName      = gameName
+		self.q             = q
+		self.battlePort    = battlePort
+		self.startDir      = startDir
+		self.listeners     = []
+		self.client        = Client(self.battlePort,self.startDir)
+		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 	
 	def letter2Teams(self,playerCMD):
 		receivedStr= playerCMD.split(" ")
@@ -179,5 +179,5 @@ class Battle(threading.Thread):
 				
 			if lib.quirks.hosterCTL.isInetDebug:
 				self.client.clearBuffer(self.username)
-
+            
 #sock.close()

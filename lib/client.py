@@ -34,7 +34,7 @@ class Client():
 		return "Probably not a cmd line!"
 
 
-	def login(self, username,password, local_ip='*', cpu=0):
+	def login(self, username, password, local_ip='*', cpu=0):
 		password = b64encode(md5(password).digest()).decode('utf8')
 		command = 'LOGIN %s %s %i %s' % (username, password, cpu, local_ip)
 		self.network.send(command)
@@ -140,4 +140,3 @@ class Client():
 				print(colored('[INET]', 'grey'), colored(username+': '+self.network.nextCmd(), 'white'))
 			else:
 				self.network.nextCmd()
-
