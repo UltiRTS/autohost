@@ -48,12 +48,13 @@ class UnitSync:
 		mapCount = self._getMapCount()
 		for i in range(mapCount):
 			mapName = self._getMapName(i).decode('utf-8')
+			print('comparing'+str(patt)+' against '+str(mapName))
 			if patt.match(mapName):
 				fname = self._getMapFileName(i).decode('utf-8')
 				break
 		else:
 			fname = mapName = None
-			print(colored('[ERROR]', 'red'), colored('Not found such map', 'white'))
+			print(colored('[ERRO]', 'red'), colored('map not found', 'white'))
 			return {'mapName': None, 'fileName': None}
 
 		mapName, fname = fname, mapName
@@ -65,8 +66,8 @@ class UnitSync:
 	
 	def mapList(self):
 		mapList=''
-		files= os.listdir(self.startdir+'/engine/maps')
-		for file in files:
-			mapList+=file+' '
+		mapCount = self._getMapCount()
+		for i in range(mapCount):
+			mapList+=self._getMapName(i).decode('utf-8')+' '
 		os.chdir(self.startdir)
 		return mapList

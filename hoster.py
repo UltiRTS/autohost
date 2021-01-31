@@ -159,9 +159,12 @@ class Battle(threading.Thread):
 				map_file=mapInfo['fileName']
 				map_name=mapInfo['mapName']
 				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
-				self.unitSync.startHeshThread(map_file,self.mod_file)
-				unit_sync = self.unitSync.getResult()
-				self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+				try:
+					self.unitSync.startHeshThread(map_file,self.mod_file)
+					unit_sync = self.unitSync.getResult()
+					self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+				except:
+					print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
 				hosterCTL[self.bid]='null'
 			
 			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
