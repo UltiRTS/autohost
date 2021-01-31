@@ -2,10 +2,8 @@ import ctypes
 from multiprocessing.pool import ThreadPool
 import os
 import fnmatch
-import libarchive
-from libarchive import file_reader
+import re
 from termcolor import colored
-
 
 
 class UnitSync:
@@ -16,6 +14,14 @@ class UnitSync:
 		self.username=username
 		self.startdir=startdir
 		os.chdir(self.startdir)
+		# Some Dynamic functions
+		self._getMapCount = self.so.GetMapCount
+		self._getMapName = self.so.GetMapName
+		self._getMapFileName = self.so.GetMapFileName
+		# output settings
+		self._getMapCount.restype = ctypes.c_int
+		self._getMapName.restype = ctypes.c_char_p
+		self._getMapFileName.restype = ctypes.c_char_p
 		
 	def startHeshThread(self, map_path, mod_hesh):
 		self.pool = ThreadPool(processes=1)
@@ -37,32 +43,31 @@ class UnitSync:
 		return unit_sync
 	
 	def syn2map(self,filename):
-		
-		files= os.listdir(self.startdir+'/engine/maps')
-		
-		for file in files:
-			
-			if fnmatch.fnmatch(file, filename):
-				
-				with libarchive.file_reader(self.startdir+'/engine/maps/'+file) as reader:
-					for e in reader:
-					# (The entry evaluates to a filename.)
-						
-						if e.name[-3:]=='smf' :
-							print("real map name: "+e.name)
-							filename=e.name
-							break;
-				break;
+		patt = re.compile( fnmatch.translate(filename), re.I )
 
-		print(colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile'+filename[5:-4], 'white'))
-		os.chdir(self.startdir)
-		return {'mapName':filename[5:-4],'fileName':file}
+		mapCount = self._getMapCount()
+		for i in range(mapCount):
+			mapName = self._getMapName(i).decode('utf-8')
+			print('comparing'+str(patt)+' against '+str(mapName))
+			if patt.match(mapName):
+				fname = self._getMapFileName(i).decode('utf-8')
+				break
+		else:
+			fname = mapName = None
+			print(colored('[ERRO]', 'red'), colored('map not found', 'white'))
+			return {'mapName': None, 'fileName': None}
+
+		mapName, fname = fname, mapName
+		mapName = mapName[5:-4]
+		fname = fname.lower().replace(' ', '_') + ".sd7"
+
+		print( colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile: '+fname, 'white'))
+		return {'mapName': mapName, 'fileName': fname}
 	
 	def mapList(self):
 		mapList=''
-		files= os.listdir(self.startdir+'/engine/maps')
-		for file in files:
-			mapList+=file+' '
+		mapCount = self._getMapCount()
+		for i in range(mapCount):
+			mapList+=self._getMapName(i).decode('utf-8')+' '
 		os.chdir(self.startdir)
 		return mapList
-		

@@ -17,23 +17,23 @@ class Battle(threading.Thread):
 
 	def __init__(self,userName, startDir,q, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort):
 		threading.Thread.__init__(self)
-		self.autohost= autohostFactory;
+		self.autohost = autohostFactory;
 		self.username = autohostFactory.new_autohost()
-		self.hostedby=userName
+		self.hostedby = userName
 		print(colored('[INFO]', 'green'), colored(self.username+': Autohost account received!', 'white'))
-		self.password=password
-		self.map_file=map_file
-		self.mod_file=mod_file
-		self.engineName=engineName
-		self.engineVersion=engineVersion
-		self.roomName=roomName
-		self.gameName=gameName
-		self.q=q
-		self.battlePort=battlePort
-		self.startDir=startDir
-		self.listeners = []
-		self.client = Client(self.battlePort,self.startDir)
-		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
+		self.password      = password
+		self.map_file      = map_file
+		self.mod_file      = mod_file
+		self.engineName    = engineName
+		self.engineVersion = engineVersion
+		self.roomName      = roomName
+		self.gameName      = gameName
+		self.q             = q
+		self.battlePort    = battlePort
+		self.startDir      = startDir
+		self.listeners     = []
+		self.client        = Client(self.battlePort,self.startDir)
+		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 	
 	def letter2Teams(self,playerCMD):
 		receivedStr= playerCMD.split(" ")
@@ -159,9 +159,12 @@ class Battle(threading.Thread):
 				map_file=mapInfo['fileName']
 				map_name=mapInfo['mapName']
 				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
-				self.unitSync.startHeshThread(map_file,self.mod_file)
-				unit_sync = self.unitSync.getResult()
-				self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+				try:
+					self.unitSync.startHeshThread(map_file,self.mod_file)
+					unit_sync = self.unitSync.getResult()
+					self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+				except:
+					print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
 				hosterCTL[self.bid]='null'
 			
 			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
@@ -179,5 +182,5 @@ class Battle(threading.Thread):
 				
 			if lib.quirks.hosterCTL.isInetDebug:
 				self.client.clearBuffer(self.username)
-
+            
 #sock.close()
