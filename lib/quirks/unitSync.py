@@ -1,8 +1,7 @@
 import ctypes
 from multiprocessing.pool import ThreadPool
 import os
-import fnmatch
-import re
+
 from termcolor import colored
 
 
@@ -43,18 +42,15 @@ class UnitSync:
 		return unit_sync
 	
 	def syn2map(self,filename):
-		patt = re.compile( fnmatch.translate(filename), re.I )
-
 		mapCount = self._getMapCount()
 		for i in range(mapCount):
 			mapName = self._getMapName(i).decode('utf-8')
-			print('comparing'+str(patt)+' against '+str(mapName))
-			if patt.match(mapName):
+			if filename in mapName:
 				fname = self._getMapFileName(i).decode('utf-8')
 				break
 		else:
 			fname = mapName = None
-			print(colored('[ERRO]', 'red'), colored('map not found', 'white'))
+			print(colored('[ERRO]', 'red'), colored(self.username+'/unitSync: map not found', 'white'))
 			return {'mapName': None, 'fileName': None}
 
 		mapName, fname = fname, mapName

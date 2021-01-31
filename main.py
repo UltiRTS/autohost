@@ -12,11 +12,10 @@ import lib.cmdInterpreter
 from lib.quirks.hosterCTL import hosterCTL, isInetDebug
 #from multiprocessing import SimpleQueue
 password = b'password'
-map_file = 'co*ca*re*'
+map_file = 'Comet'
 mod_file = 'Zero-K-master.sdd'
 engineName = 'Spring'
 engineVersion = '104.0.1-1435-g79d77ca maintenance'
-roomName = 'Test Room'
 gameName = 'Zero-K v1.8.3.5'
 q = Queue()
 battlePort = 2000
