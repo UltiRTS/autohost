@@ -11,6 +11,9 @@ import lib.quirks.hosterCTL
 import os
 import lib.cmdInterpreter
 import random
+
+q = Queue()
+
 class Battle(threading.Thread):
 
 	
@@ -35,6 +38,28 @@ class Battle(threading.Thread):
 		self.client        = Client(self.battlePort,self.startDir)
 		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 	
+	def letter2Teams(self,playerCMD):
+		receivedStr= playerCMD.split(" ")
+		n=0
+		cmdDict={}
+		players={}
+		while n<len(receivedStr)-1:
+			cmdDict[receivedStr[n+1]]=[]
+			n=n+2
+		n=0
+
+		while n<len(receivedStr)-1:
+			cmdDict[receivedStr[n+1]].insert(0,receivedStr[n])
+			n=n+2
+		i=0
+
+		for key in cmdDict:
+			for player in cmdDict[key]:
+				players[player]=i
+			i=i+1
+		print("l2teams:"+str(players))
+		return(players)
+	
 	def gemStart(self, players,numTeams,xtraOptions={}):
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
 		#players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
@@ -46,7 +71,6 @@ class Battle(threading.Thread):
 		self.client.startBattle()
 		server.launch()
 		#time.sleep(2)
-		
 		self.client.stopBattle()
 		
 	def listMap(self):
@@ -56,7 +80,7 @@ class Battle(threading.Thread):
 		
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'room':self.bid,'available-maps': mapList}))
 	
-	def balance(self,ppl,gemType):
+	def balance(self,ppl,gemType,leaderConfig,preDefined="false"):
 		i=0
 		if gemType=='fafafa':
 			self.gemStart()
@@ -79,8 +103,29 @@ class Battle(threading.Thread):
 			
 		elif gemType=="pve":
 			self.gemStart()
+		
+		elif gemType=="custom":
+			result=self.letter2Teams(preDefined)
+			for player in ppl:                      #apply team designation to ppl matrix
+				try:
+					ppl[player]['team']=result[player]
+				except:
+					print(colored('[INFO]', 'green'), colored(self.username+': Player '+player+" has unassigned team!", 'white'))
+					
+			for team in leaderConfig:             #for every leader, find the player in the ppl matrix, and set their leader status to true
+				for player in ppl:
+					#print('currently in team '+str(team))
+					#print('currently setting up'+player+' in team '+str(ppl[player]['team']))
+					if leaderConfig[team]==player:
+						ppl[player]['isLeader']=True
+						
+			print('player custom config'+str(ppl))
+			self.gemStart(ppl,2)
 			
-			
+	def teamAssign(self,teamConfig):
+		print(colored('[INFO]', 'green'), colored(self.username+': Returning teamConfig:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'player': teamConfig}), 'white'))
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','room':self.bid,'player': teamConfig}))
+	
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		
@@ -101,10 +146,17 @@ class Battle(threading.Thread):
 		self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, map_name,  self.roomName, self.gameName)
 
 
-		hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
+	#	hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
+		ctl = {
+			"bid": self.bid,
+			"msg": "NOACTIONYET!"
+		}
+		q.put(ctl)
+
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		#client.clearBuffer(self.username)
-
+		teamConfig=''
+		leaderConfig={}
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
@@ -114,30 +166,94 @@ class Battle(threading.Thread):
 			#client.ping(self.username)
 			time.sleep(1)
 			#print(self.hostedby+"is running with bid"+self.bid)
-			if hosterCTL[self.bid].startswith("left") and self.hostedby in hosterCTL[self.bid]:
-				self.client.exit()
-				self.autohost.free_autohost(self.username)
-				return
-			
-			if hosterCTL[self.bid].startswith("chmap") and self.hostedby in hosterCTL[self.bid]:
-				self.map_file=hosterCTL[self.bid].split()[1]
-				mapInfo=self.unitSync.syn2map(self.map_file)
-				map_file=mapInfo['fileName']
-				map_name=mapInfo['mapName']
-				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
-				self.unitSync.startHeshThread(map_file,self.mod_file)
-				unit_sync = self.unitSync.getResult()
-				self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+#			if hosterCTL[self.bid].startswith("left") and self.hostedby in hosterCTL[self.bid]:
+#				self.client.exit()
+#				self.autohost.free_autohost(self.username)
+#				return
+#			
+#			if hosterCTL[self.bid].startswith("chmap") and self.hostedby in hosterCTL[self.bid]:
+#				self.map_file=hosterCTL[self.bid].split()[1]
+#				mapInfo=self.unitSync.syn2map(self.map_file)
+#				map_file=mapInfo['fileName']
+#				map_name=mapInfo['mapName']
+#				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
+#				try:
+#					self.unitSync.startHeshThread(map_file,self.mod_file)
+#					unit_sync = self.unitSync.getResult()
+#					self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+#				except:
+#					print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
+#				hosterCTL[self.bid]='null'
+#			
+#			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
+#				ppl=self.client.getUserinChat(self.bid,self.username)
+#				#self.client.getUserinChat(self.bid,self.username)
+#				
+#				self.balance(ppl,'custom',leaderConfig,teamConfig)
+#				hosterCTL[self.bid]='null'
+#
+#			if hosterCTL[self.bid].startswith("changeTeams") and self.hostedby in hosterCTL[self.bid]:
+#				teamConfig=' '
+#				teamConfig=teamConfig.join(hosterCTL[self.bid].split()[2:])
+#				print('teamConfig:'+str(teamConfig))
+#				hosterCTL[self.bid]='null'
+#				self.client.sayChat('bus',self.teamAssign(teamConfig))
+#				
+#			if hosterCTL[self.bid].startswith("leader") and hosterCTL[self.bid].endswith(self.hostedby):
+#				
+#				leaderConfig[hosterCTL[self.bid].split()[1]]=hosterCTL[self.bid].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
+#				print(hosterCTL[self.bid].split()[1:3])
+#				hosterCTL[self.bid]='null'
 				
-				hosterCTL[self.bid]='null'
-			
-			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
-				
-				#self.client.getUserinChat(self.bid,self.username)
-				self.balance(self.client.getUserinChat(self.bid,self.username),'teams')
-				hosterCTL[self.bid]='null'
+			ctl = q.get()
+			if ctl["bid"] != self.bid:
+				q.put(ctl)
+				continue
+			else:
+				if ctl["msg"].startwith("left") and self.hostedby in ctl["msg"]:
+					self.client.exit()
+					self.autohost.free_autohost(self.username)
+					return
 
-			if lib.quirks.hosterCTL.isInetDebug:
-				self.client.clearBuffer(self.username)
+				if ctl["msg"].startwith("chmap") and self.hostedby in ctl["msg"]:
+					self.map_file=ctl["msg"].split()[1]
+					mapInfo=self.unitSync.syn2map(self.map_file)
+					map_file=mapInfo['fileName']
+					map_name=mapInfo['mapName']
+					#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
+					try:
+						self.unitSync.startHeshThread(map_file,self.mod_file)
+						unit_sync = self.unitSync.getResult()
+						self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+					except:
+						print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
+					ctl["msg"] = "null"
+					q.put(ctl)
+				
+				if ctl["msg"].startwith("start") and self.hostedby in ctl["msg"]:
+					ppl=self.client.getUserinChat(self.bid,self.username)
+					#self.client.getUserinChat(self.bid,self.username)
+					
+					self.balance(ppl,'custom',leaderConfig,teamConfig)
+					ctl["msg"] = "null"
+					q.put(ctl)
+			
+				if ctl["msg"].startwith("changeTeams") and self.hostedby in ctl["msg"]:
+					teamConfig=' '
+					teamConfig=teamConfig.join(ctl["msg"].split()[2:])
+					print('teamConfig:'+str(teamConfig))
+					ctl["msg"] = "null"
+					q.put(ctl)
+					self.client.sayChat('bus',self.teamAssign(teamConfig))
+				
+				if ctl["msg"].startwith("leader") and self.hostedby in ctl["msg"]:
+					leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
+					print(ctl["msg"].split()[1:3])
+					ctl["msg"] = "null"
+					q.put(ctl)
+
+				
+				if lib.quirks.hosterCTL.isInetDebug:
+					self.client.clearBuffer(self.username)
             
 #sock.close()
