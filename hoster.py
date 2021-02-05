@@ -169,44 +169,6 @@ class Battle(threading.Thread):
 			#client.ping(self.username)
 			time.sleep(1)
 			#print(self.hostedby+"is running with bid"+self.bid)
-#			if hosterCTL[self.bid].startswith("left") and self.hostedby in hosterCTL[self.bid]:
-#				self.client.exit()
-#				self.autohost.free_autohost(self.username)
-#				return
-#			
-#			if hosterCTL[self.bid].startswith("chmap") and self.hostedby in hosterCTL[self.bid]:
-#				self.map_file=hosterCTL[self.bid].split()[1]
-#				mapInfo=self.unitSync.syn2map(self.map_file)
-#				map_file=mapInfo['fileName']
-#				map_name=mapInfo['mapName']
-#				#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
-#				try:
-#					self.unitSync.startHeshThread(map_file,self.mod_file)
-#					unit_sync = self.unitSync.getResult()
-#					self.client.updateBInfo(unit_sync['mapHesh'],map_name)
-#				except:
-#					print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
-#				hosterCTL[self.bid]='null'
-#			
-#			if hosterCTL[self.bid].startswith("start") and self.hostedby in hosterCTL[self.bid]:
-#				ppl=self.client.getUserinChat(self.bid,self.username)
-#				#self.client.getUserinChat(self.bid,self.username)
-#				
-#				self.balance(ppl,'custom',leaderConfig,teamConfig)
-#				hosterCTL[self.bid]='null'
-#
-#			if hosterCTL[self.bid].startswith("changeTeams") and self.hostedby in hosterCTL[self.bid]:
-#				teamConfig=' '
-#				teamConfig=teamConfig.join(hosterCTL[self.bid].split()[2:])
-#				print('teamConfig:'+str(teamConfig))
-#				hosterCTL[self.bid]='null'
-#				self.client.sayChat('bus',self.teamAssign(teamConfig))
-#				
-#			if hosterCTL[self.bid].startswith("leader") and hosterCTL[self.bid].endswith(self.hostedby):
-#				
-#				leaderConfig[hosterCTL[self.bid].split()[1]]=hosterCTL[self.bid].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
-#				print(hosterCTL[self.bid].split()[1:3])
-#				hosterCTL[self.bid]='null'
 				
 			if not q.empty():
 				ctl = q.get()
