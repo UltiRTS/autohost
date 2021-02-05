@@ -217,12 +217,12 @@ class Battle(threading.Thread):
 				q.put(ctl)
 				continue
 			else:
-				if ctl["msg"].startwith("left") and self.hostedby in ctl["msg"]:
+				if ctl["msg"].startswith("left") and self.hostedby in ctl["msg"]:
 					self.client.exit()
 					self.autohost.free_autohost(self.username)
 					return
 
-				if ctl["msg"].startwith("chmap") and self.hostedby in ctl["msg"]:
+				if ctl["msg"].startswith("chmap") and self.hostedby in ctl["msg"]:
 					self.map_file=ctl["msg"].split()[1]
 					mapInfo=self.unitSync.syn2map(self.map_file)
 					map_file=mapInfo['fileName']
@@ -237,7 +237,7 @@ class Battle(threading.Thread):
 					ctl["msg"] = "null"
 					q.put(ctl)
 				
-				if ctl["msg"].startwith("start") and self.hostedby in ctl["msg"]:
+				if ctl["msg"].startswith("start") and self.hostedby in ctl["msg"]:
 					ppl=self.client.getUserinChat(self.bid,self.username)
 					#self.client.getUserinChat(self.bid,self.username)
 					
@@ -245,7 +245,7 @@ class Battle(threading.Thread):
 					ctl["msg"] = "null"
 					q.put(ctl)
 			
-				if ctl["msg"].startwith("changeTeams") and self.hostedby in ctl["msg"]:
+				if ctl["msg"].startswith("changeTeams") and self.hostedby in ctl["msg"]:
 					teamConfig=' '
 					teamConfig=teamConfig.join(ctl["msg"].split()[2:])
 					print('teamConfig:'+str(teamConfig))
@@ -253,7 +253,7 @@ class Battle(threading.Thread):
 					q.put(ctl)
 					self.client.sayChat('bus',self.teamAssign(teamConfig))
 				
-				if ctl["msg"].startwith("leader") and self.hostedby in ctl["msg"]:
+				if ctl["msg"].startswith("leader") and self.hostedby in ctl["msg"]:
 					leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
 					print(ctl["msg"].split()[1:3])
 					ctl["msg"] = "null"
