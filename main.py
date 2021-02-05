@@ -11,7 +11,7 @@ from termcolor import colored
 import lib.cmdInterpreter
 from lib.quirks.hosterCTL import hosterCTL, isInetDebug
 
-from hoster import q
+from hoster import q, l
 #from multiprocessing import SimpleQueue
 password = b'password'
 map_file = 'Comet'
@@ -92,10 +92,13 @@ if __name__ == "__main__":
 			battle[BtlPtr].start() #this is non blocking, the loop continues to check cmds
 			BtlPtr+=1
 
-		ctl = q.get()
+		if not q.empty():
+			ctl = q.get()
+		else:
+			continue
+
 		if ctl["bid"] != msg['bid']:
 			q.put(ctl)
-			continue
 		else:
 			if 'map' in msg:
 				ctl["msg"] = 'chmap '+msg['map']+' '+user	
@@ -119,6 +122,8 @@ if __name__ == "__main__":
 				q.put(ctl)
 				print ("sending："+ctl["msg"])
 			
+			if l.locked():
+				l.release()
 
 		#if 'start' in msg:
 	#	if 'map' in msg:

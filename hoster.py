@@ -13,6 +13,7 @@ import lib.cmdInterpreter
 import random
 
 q = Queue()
+l = threading.Lock()
 
 class Battle(threading.Thread):
 
@@ -162,6 +163,8 @@ class Battle(threading.Thread):
 		#client.clearBuffer(self.username)
 		self.client.sayChat('bus',self.listMap())
 		self.client.clearBuffer(self.username)
+
+		l.acquire()
 		while True:
 			#client.ping(self.username)
 			time.sleep(1)
@@ -205,7 +208,11 @@ class Battle(threading.Thread):
 #				print(hosterCTL[self.bid].split()[1:3])
 #				hosterCTL[self.bid]='null'
 				
-			ctl = q.get()
+			if not q.empty():
+				ctl = q.get()
+			else:
+				continue
+
 			if ctl["bid"] != self.bid:
 				q.put(ctl)
 				continue
@@ -256,4 +263,6 @@ class Battle(threading.Thread):
 				if lib.quirks.hosterCTL.isInetDebug:
 					self.client.clearBuffer(self.username)
             
+			if not l.locked():
+				l.acquire()
 #sock.close()
