@@ -1,4 +1,4 @@
-from lib.message_queue import Deliver
+#from lib.message_queue import Deliver
 import time
 import threading
 import os
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 					"bid": msg['bid'],
 					"msg": "changeTeams "+user+" "+msg['player']
 				}
-				print ("sending："+"changeTeams "+user+" "+msg['player'])
+				#print ("sending："+"changeTeams "+user+" "+msg['player'])
 
 			deliver.put(ctl)
 			deliver.join()
