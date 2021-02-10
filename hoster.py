@@ -7,8 +7,8 @@ from lib.client import Client
 from lib.quirks.unitSync import UnitSync
 from termcolor import colored
 from serverlauncher import ServerLauncher
-from lib.quirks.hosterCTL import hosterCTL
-import lib.quirks.hosterCTL
+#from lib.quirks.hosterCTL import hosterCTL
+#import lib.quirks.hosterCTL
 import os
 import lib.cmdInterpreter
 import random
@@ -147,7 +147,7 @@ class Battle(threading.Thread):
 		self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, map_name,  self.roomName, self.gameName)
 
 
-		hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
+		#hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		#client.clearBuffer(self.username)
 		teamConfig=''
@@ -167,7 +167,7 @@ class Battle(threading.Thread):
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				deliver.task_done()
 				deliver.put(ctl)
-				deliver.join()
+				#deliver.join()
 			else:   #do the following if the bid matches mine
 				msg = ctl["msg"]	
 				if self.hostedby in msg:   #do the following if the bid matches mine and is from the one who hosted the btl
@@ -200,7 +200,7 @@ class Battle(threading.Thread):
 						teamConfig=' '
 						teamConfig=teamConfig.join(msg.split()[2:])
 						print('teamConfig:'+str(teamConfig))
-#							hosterCTL[self.bid]='null'
+#							#hosterCTL[self.bid]='null'
 						self.client.sayChat('bus',self.teamAssign(teamConfig))
 					if msg.startswith("leader"):
 						leaderConfig[msg.split()[1]]=msg.split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
@@ -215,7 +215,7 @@ class Battle(threading.Thread):
 				else:   #the bid is mine, however the issuer of the cmd is not the host
 					deliver.task_done()
 					#deliver.put(ctl)   #dispose of this cmd!
-					deliver.join()
+					#deliver.join()
 
 				
 		if lib.quirks.hosterCTL.isInetDebug:
