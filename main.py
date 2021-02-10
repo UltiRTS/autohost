@@ -1,3 +1,4 @@
+from lib.message_queue import Deliver
 import time
 import threading
 import os
@@ -10,6 +11,7 @@ from lib.quirks.autohost_factory import AutohostFactory #ability to change crede
 from termcolor import colored
 import lib.cmdInterpreter
 from lib.quirks.hosterCTL import hosterCTL, isInetDebug
+from hoster import deliver
 #from multiprocessing import SimpleQueue
 password = b'password'
 map_file = 'Comet'
@@ -49,7 +51,6 @@ if __name__ == "__main__":
 # ,'gemType': 'default', 'isPasswded': False, 'passwd':"", 'mapFile': 'comet_catcher_redux.sd7', 'modFile': '0465683c70018f80a17b92ed78174d19.sdz', 'engineName': 'Spring', 'engineVersion': '104.0.1-1435-g79d77ca maintenance', 'mapName': 'Comet Catcher Redux', 'roomName': 'Test Room', 'gameName': 'Zero-K v1.8.3.5'
 	
 	while True:
-		
 
 		#client.ping('Autohost_CTL')
 		servermsg=client.sysCTLTrigger()
@@ -61,25 +62,38 @@ if __name__ == "__main__":
 			battle.append( Battle(msg['user'],startDir,q, autohost, password, map_file, mod_file, engineName, engineVersion, msg['title'], gameName, 2000+BtlPtr))  # change username, password annd room name everytime call this line
 			battle[BtlPtr].start() #this is non blocking, the loop continues to check cmds
 			BtlPtr+=1
+		else:
+			# adding the ctl to Message queue, when all ctl been got and processed, the `hoster.py` call task_done then back to `main.py` to move to next command
+			ctl = None
+			if 'map' in msg:
+				ctl = {
+					"bid": msg['bid'],
+					"msg": 'chmap '+msg['map']+' '+user	
+				}
+			if 'leave' in msg:
+				ctl = {
+					"bid": msg['bid'],
+					"msg": "left "+user
+				}
+			if 'start' in msg:
+				ctl = {
+					"bid": msg['bid'],
+					"msg": "start "+user  
+				}
+			if 'leader' in msg:
+				ctl = {
+					"bid": msg['bid'],
+					"msg":"leader "+msg['leader']+" "+user
+				}
+			if 'player' in msg:
+				ctl = {
+					"bid": msg['bid'],
+					"msg": "changeTeams "+user+" "+msg['player']
+				}
+				print ("sending："+"changeTeams "+user+" "+msg['player'])
 
-		#if 'start' in msg:
-		if 'map' in msg:
-			hosterCTL[msg['bid']]='chmap '+msg['map']+' '+user	
-			
-		if 'leave' in msg:
-			#print("servermsg on leave is"+servermsg.split()[2])
-			hosterCTL[msg['bid']]="left "+user       
-
-		if 'start' in msg:
-			hosterCTL[msg['bid']]="start "+user  
-		
-		if 'leader' in msg:
-			hosterCTL[msg['bid']]="leader "+msg['leader']+" "+user
-		
-		if 'player' in msg:
-			
-			hosterCTL[msg['bid']]="changeTeams "+user+" "+msg['player']
-			print ("sending："+hosterCTL[msg['bid']])
+			deliver.put(ctl)
+			deliver.join()
 	#time.sleep(10)
 	#battle2 = Battle(startDir,q, autohost, password, map_file, mod_file, engineName, engineVersion, mapName, 'aaa', gameName, battlePort)  # change username, and room name everytime call this line
 	#time.sleep(1)
