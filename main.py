@@ -70,27 +70,38 @@ if __name__ == "__main__":
 			if 'map' in msg:
 				ctl = {
 					"bid": msg['bid'],
-					"msg": 'chmap '+msg['map']+' '+user	
+					"msg": 'chmap '+msg['map'],
+					"caller":user
 				}
 			if 'leave' in msg:
 				ctl = {
 					"bid": msg['bid'],
-					"msg": "left "+user
+					"msg": "left "+user,
+					"caller":user
 				}
 			if 'start' in msg:
 				ctl = {
 					"bid": msg['bid'],
-					"msg": "start "+user  
+					"msg": "start "+user,
+					"caller":user
 				}
 			if 'leader' in msg:
 				ctl = {
 					"bid": msg['bid'],
-					"msg":"leader "+msg['leader']+" "+user
+					"msg":"leader "+msg['leader'],
+					"caller":user
 				}
 			if 'player' in msg:
 				ctl = {
 					"bid": msg['bid'],
-					"msg": "changeTeams "+user+" "+msg['player']
+					"msg": "changeTeams "+msg['player'],
+					"caller":user
+				}
+			if 'AI' in msg:
+				ctl = {
+					"bid": msg['bid'],
+					"msg": "addAI "+msg['AI'],
+					"caller":user
 				}
 				#print ("sending："+"changeTeams "+user+" "+msg['player'])
 			#print('aaaa')
