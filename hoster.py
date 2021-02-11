@@ -79,7 +79,7 @@ class Battle(threading.Thread):
 		mapList = ' '.join(mapList)
 		print(colored('[INFO]', 'green'), colored(self.username+': Listing map with cmd:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': mapList}), 'white'))
 		
-		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'room':self.bid,'available-maps': mapList}))
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'action':'listMap','room':self.bid,'available-maps': mapList}))
 	
 	def balance(self,ppl,gemType,leaderConfig,preDefined="false"):
 		i=0
@@ -125,7 +125,10 @@ class Battle(threading.Thread):
 			
 	def teamAssign(self,teamConfig):
 		print(colored('[INFO]', 'green'), colored(self.username+': Returning teamConfig:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'player': teamConfig}), 'white'))
-		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','room':self.bid,'player': teamConfig}))
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','action':'teamAssign','room':self.bid,'player': teamConfig}))
+	
+	def aiResponse(self,AI):
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','action':'aiAdd','room':self.bid,'AI': AI}))
 	
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
@@ -152,6 +155,7 @@ class Battle(threading.Thread):
 		#client.clearBuffer(self.username)
 		teamConfig=''
 		leaderConfig={}
+		aiList=''
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
@@ -170,7 +174,7 @@ class Battle(threading.Thread):
 				#deliver.join()
 			else:   #do the following if the bid matches mine
 				msg = ctl["msg"]	
-				if self.hostedby in msg:   #do the following if the bid matches mine and is from the one who hosted the btl
+				if ctl['caller']==self.hostedby:   #do the following if the bid matches mine and is from the one who hosted the btl
 					if msg.startswith("left"):
 						self.client.exit()
 						self.autohost.free_autohost(self.username)
@@ -191,18 +195,18 @@ class Battle(threading.Thread):
 							#hosterCTL[self.bid]='null'
 
 					if msg.startswith("start"):
-						ppl=self.client.getUserinChat(self.bid,self.username)
+						ppl=self.client.getUserinChat(self.bid,self.username,aiList)
 							#self.client.getUserinChat(self.bid,self.username)
 							
 						self.balance(ppl,'custom',leaderConfig,teamConfig)
 							#hosterCTL[self.bid]='null'
 					if msg.startswith("changeTeams"):
 						teamConfig=' '
-						teamConfig=teamConfig.join(msg.split()[2:])
+						teamConfig=teamConfig.join(msg.split()[1:])
 						print('teamConfig:'+str(teamConfig))
 #							#hosterCTL[self.bid]='null'
 						self.client.sayChat('bus',self.teamAssign(teamConfig))
-					if msg.startswith("leader"):
+					if msg.startswith("leader") :
 						leaderConfig[msg.split()[1]]=msg.split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
 						# msg.split()[1] returns team letter
 						# msg.split()[2] returns the leader usrname
@@ -210,7 +214,10 @@ class Battle(threading.Thread):
 							#hosterCTL[self.bid]='null'
 						#print(leaderConfig)
 						#print(msg.split())
-						
+					
+					if msg.startswith("addAI"):
+						aiList=aiList+msg.split()[1]+' '
+						self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
 					#deliver.task_done()
 				#else:   #the bid is mine, however the issuer of the cmd is not the host
 					#deliver.task_done()

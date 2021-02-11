@@ -97,7 +97,7 @@ class Client():
 	def exit(self):
 		self.network.disconnect()
 		
-	def getUserinChat(self,channel,selAccount):
+	def getUserinChat(self,channel,selAccount,AI):
 		self.joinChat(channel)
 		#print('aaa')
 		pindex=0
@@ -121,9 +121,11 @@ class Client():
 							for i in response:
 								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False}
 								#print('bbb')
-								print (playerMatrix[i])
+								#print (playerMatrix[i])
 								pindex+=1
-								
+							
+							for j in AI:
+								playerMatrix[j]={'team':0,'muted':0,'isAI':True,'index':pindex,'isLeader':False}
 							return playerMatrix
 				except:
 					continue
