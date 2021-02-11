@@ -165,7 +165,7 @@ class Battle(threading.Thread):
 
 			ctl = deliver.get()
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
-				deliver.task_done()
+				#deliver.task_done()
 				deliver.put(ctl)
 				#deliver.join()
 			else:   #do the following if the bid matches mine
@@ -211,9 +211,9 @@ class Battle(threading.Thread):
 						#print(leaderConfig)
 						#print(msg.split())
 						
-					deliver.task_done()
-				else:   #the bid is mine, however the issuer of the cmd is not the host
-					deliver.task_done()
+					#deliver.task_done()
+				#else:   #the bid is mine, however the issuer of the cmd is not the host
+					#deliver.task_done()
 					#deliver.put(ctl)   #dispose of this cmd!
 					#deliver.join()
 
