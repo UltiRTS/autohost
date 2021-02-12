@@ -46,8 +46,8 @@ class ServerLauncher():
 				print("generating config for AI "+player+" whose index is "+str(self.players[player]['index'])+" and in team "+str(self.players[player]['team']))
 				os.system('echo "[AI'+str(self.players[player]['index'])+']" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert ai index
 				os.system('echo { >> /tmp/battle'+str(self.battlePort)+'.txt'); 
-				os.system('echo "Name='+player+';" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert ai name
-				os.system('echo "ShortName='+player+';" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert ai name
+				os.system('echo "Name=CircuitAI;" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert ai name
+				os.system('echo "ShortName=CircuitAI;" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert ai name
 				os.system('echo "Team='+str(self.players[player]['index'])+';" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert ai team
 				os.system('echo "Host=0;" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 				os.system('echo } >> /tmp/battle'+str(self.battlePort)+'.txt'); 
