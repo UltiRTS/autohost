@@ -107,6 +107,8 @@ class Battle(threading.Thread):
 		
 		elif gemType=="custom":
 			result=self.letter2Teams(preDefined)
+			print('result:'+ str(result))
+			print('ppl: '+str(ppl))
 			for player in ppl:                      #apply team designation to ppl matrix
 				try:
 					ppl[player]['team']=result[player]
@@ -130,6 +132,8 @@ class Battle(threading.Thread):
 	def aiResponse(self,AI):
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','action':'aiAdd','room':self.bid,'AI': AI}))
 	
+	def kaiResponse(self,AI):
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','action':'aiKill','room':self.bid,'AI': AI}))
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		
@@ -218,6 +222,11 @@ class Battle(threading.Thread):
 					if msg.startswith("addAI"):
 						aiList=aiList+msg.split()[1]+' '
 						self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
+						
+					if msg.startswith("killAI"):
+						
+						aiList.replace(msg.split()[1]+' ', '')
+						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
 					#deliver.task_done()
 				#else:   #the bid is mine, however the issuer of the cmd is not the host
 					#deliver.task_done()

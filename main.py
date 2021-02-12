@@ -103,6 +103,12 @@ if __name__ == "__main__":
 					"msg": "addAI "+msg['AI'],
 					"caller":user
 				}
+			if 'kAI' in msg:
+				ctl = {
+					"bid": msg['bid'],
+					"msg": "killAI "+msg['kAI'],
+					"caller":user
+				}
 				#print ("sending："+"changeTeams "+user+" "+msg['player'])
 			#print('aaaa')
 			deliver.put(ctl)
