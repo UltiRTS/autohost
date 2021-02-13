@@ -177,7 +177,7 @@ class Battle(threading.Thread):
 					#deliver.task_done()
 					deliver.put(ctl)
 					#deliver.join()
-				except:
+			except:
 					print(colored('[WARN]', 'red'), colored(self.username+': An improper cmd without bid received', 'white'))
 			else:   #do the following if the bid matches mine
 				msg = ctl["msg"]	
