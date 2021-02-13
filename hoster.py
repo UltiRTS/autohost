@@ -176,45 +176,48 @@ class Battle(threading.Thread):
 				if ctl["bid"] != self.bid:    #do nothing if its not my business
 					#deliver.task_done()
 					deliver.put(ctl)
+					continue
 					#deliver.join()
 			except:
 					print(colored('[WARN]', 'red'), colored(self.username+': An improper cmd without bid received', 'white'))
-			else:   #do the following if the bid matches mine
-				msg = ctl["msg"]	
-				if ctl['caller']==self.hostedby:   #do the following if the bid matches mine and is from the one who hosted the btl
-					if msg.startswith("left"):
-						self.client.exit()
-						self.autohost.free_autohost(self.username)
-						# exit thread
-						return
-					if msg.startswith("chmap"):
-						self.map_file=msg.split()[1]
-						mapInfo=self.unitSync.syn2map(self.map_file)
-						map_file=mapInfo['fileName']
-						map_name=mapInfo['mapName']
+					#deliver.put(ctl)
+					continue
+			
+			msg = ctl["msg"]	
+			if ctl['caller']==self.hostedby:   #do the following if the bid matches mine and is from the one who hosted the btl
+				if msg.startswith("left"):
+					self.client.exit()
+					self.autohost.free_autohost(self.username)
+					# exit thread
+					return
+				if msg.startswith("chmap"):
+					self.map_file=msg.split()[1]
+					mapInfo=self.unitSync.syn2map(self.map_file)
+					map_file=mapInfo['fileName']
+					map_name=mapInfo['mapName']
 							#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
-						try:
-							self.unitSync.startHeshThread(map_file,self.mod_file)
-							unit_sync = self.unitSync.getResult()
-							self.client.updateBInfo(unit_sync['mapHesh'],map_name)
-						except:
-							print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
-							#hosterCTL[self.bid]='null'
+					try:
+						self.unitSync.startHeshThread(map_file,self.mod_file)
+						unit_sync = self.unitSync.getResult()
+						self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+					except:
+						print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
+						#hosterCTL[self.bid]='null'
 
-					if msg.startswith("start"):
-						ppl=self.client.getUserinChat(self.bid,self.username,aiList)
-							#self.client.getUserinChat(self.bid,self.username)
+				if msg.startswith("start"):
+					ppl=self.client.getUserinChat(self.bid,self.username,aiList)
+						#self.client.getUserinChat(self.bid,self.username)
 							
-						self.balance(ppl,'custom',leaderConfig,teamConfig)
-							#hosterCTL[self.bid]='null'
-					if msg.startswith("changeTeams"):
-						teamConfig=' '
-						teamConfig=teamConfig.join(msg.split()[1:])
-						print('teamConfig:'+str(teamConfig))
+					self.balance(ppl,'custom',leaderConfig,teamConfig)
+						#hosterCTL[self.bid]='null'
+				if msg.startswith("changeTeams"):
+					teamConfig=' '
+					teamConfig=teamConfig.join(msg.split()[1:])
+					print('teamConfig:'+str(teamConfig))
 #							#hosterCTL[self.bid]='null'
-						self.client.sayChat('bus',self.teamAssign(teamConfig))
-					if msg.startswith("leader") :
-						leaderConfig[msg.split()[1]]=msg.split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
+					self.client.sayChat('bus',self.teamAssign(teamConfig))
+				if msg.startswith("leader") :
+					leaderConfig[msg.split()[1]]=msg.split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
 						# msg.split()[1] returns team letter
 						# msg.split()[2] returns the leader usrname
 						#print(msg.split()[1:3])
@@ -222,14 +225,14 @@ class Battle(threading.Thread):
 						#print(leaderConfig)
 						#print(msg.split())
 					
-					if msg.startswith("addAI"):
-						aiList=aiList+msg.split()[1]+' '
-						self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
+				if msg.startswith("addAI"):
+					aiList=aiList+msg.split()[1]+' '
+					self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
 						
-					if msg.startswith("killAI"):
+				if msg.startswith("killAI"):
 						
-						aiList.replace(msg.split()[1]+' ', '')
-						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
+					aiList.replace(msg.split()[1]+' ', '')
+					self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
 					#deliver.task_done()
 				#else:   #the bid is mine, however the issuer of the cmd is not the host
 					#deliver.task_done()
