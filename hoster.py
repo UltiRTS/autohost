@@ -172,10 +172,13 @@ class Battle(threading.Thread):
 			#print(self.hostedby+"is running with bid"+self.bid)
 
 			ctl = deliver.get()
-			if ctl["bid"] != self.bid:    #do nothing if its not my business
-				#deliver.task_done()
-				deliver.put(ctl)
-				#deliver.join()
+			try:
+				if ctl["bid"] != self.bid:    #do nothing if its not my business
+					#deliver.task_done()
+					deliver.put(ctl)
+					#deliver.join()
+				except:
+					print(colored('[WARN]', 'red'), colored(self.username+': An improper cmd without bid received', 'white'))
 			else:   #do the following if the bid matches mine
 				msg = ctl["msg"]	
 				if ctl['caller']==self.hostedby:   #do the following if the bid matches mine and is from the one who hosted the btl
