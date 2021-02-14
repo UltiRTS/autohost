@@ -176,9 +176,9 @@ class Battle(threading.Thread):
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				#deliver.task_done()
 				ctl["ttl"]+=1
-				if ctl["ttl"]==20:
+				if ctl["ttl"]>=20:
 					continue
-				else:
+				#else:
 					deliver.put(ctl)
 				#deliver.join()
 			else:   #do the following if the bid matches mine
