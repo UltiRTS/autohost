@@ -51,15 +51,15 @@ class UnitSync:
 				break
 		else:
 			fname = mapName = None
-			print(colored('[ERRO]', 'red'), colored(self.username+'/unitSync: map not found', 'white'))
+			print(colored('[ERRO]', 'red'), colored(self.username+'/unitSync: map '+requestedMapName+' not found', 'white'))
 			return {'mapName': None, 'fileName': None}
 
-		print( mapName, fname )
-		mapName, fname = fname, mapName
-		mapName = mapName[5:-4]
-		fname = fname.replace(' ', '🦔') + ".sd7"  #I doubt map file name is used
+		#print( mapName, fname )
+		
+		#mapName = mapName[5:-4]
+		#fname = fname.replace(' ', '🦔') + ".sd7"  #I doubt map file name is used
 		mapName = mapName.replace(' ', '🦔')
-		print( colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile: '+fname, 'white'))
+		print( colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile: '+fname+' with map name '+mapName, 'white'))
 		return {'mapName': mapName, 'fileName': fname}
 	
 	def mapList(self):
