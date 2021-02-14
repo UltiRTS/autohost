@@ -212,17 +212,16 @@ class Battle(threading.Thread):
 							
 						self.balance(ppl,'custom',leaderConfig,teamConfig)
 							#hosterCTL[self.bid]='null'
+					
 					if msg.startswith("changeTeams"):
 						teamConfig=' '
 						teamConfig=teamConfig.join(msg.split()[1:])
 						print('teamConfig:'+str(teamConfig))
 #							#hosterCTL[self.bid]='null'
 						self.client.sayChat('bus',self.teamAssign(teamConfig))
+					
 					if msg.startswith("leader") :
 						leaderConfig[msg.split()[1]]=msg.split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
-
-			
-
 					
 					if msg.startswith("addAI"):
 						aiList=aiList+msg.split()[1]+' '
@@ -232,15 +231,7 @@ class Battle(threading.Thread):
 						
 						aiList.replace(msg.split()[1]+' ', '')
 						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
-				
-					if msg.startswith("addAI"):
-						aiList=aiList+msg.split()[1]+' '
-						self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
-						
-					if msg.startswith("killAI"):
-						
-						aiList.replace(msg.split()[1]+' ', '')
-						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
+
 					#deliver.task_done()
 				#else:   #the bid is mine, however the issuer of the cmd is not the host
 					#deliver.task_done()
@@ -248,8 +239,8 @@ class Battle(threading.Thread):
 					#deliver.join()
 
 				
-			if lib.quirks.hosterCTL.isInetDebug:
-				self.client.clearBuffer(self.username)
+			#if lib.quirks.hosterCTL.isInetDebug:
+			#	self.client.clearBuffer(self.username)
 
             
 #sock.close()
