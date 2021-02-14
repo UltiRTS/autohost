@@ -172,10 +172,14 @@ class Battle(threading.Thread):
 			#print(self.hostedby+"is running with bid"+self.bid)
 
 			ctl = deliver.get()
-<<<<<<< HEAD
+			print(colored('[INFO]', 'green'), colored(self.username+'New Msg', 'white'))
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				#deliver.task_done()
-				deliver.put(ctl)
+				ctl["ttl"]+=1
+				if ctl["ttl"]==20:
+					continue
+				else:
+					deliver.put(ctl)
 				#deliver.join()
 			else:   #do the following if the bid matches mine
 				msg = ctl["msg"]	
@@ -195,6 +199,8 @@ class Battle(threading.Thread):
 							self.unitSync.startHeshThread(map_file,self.mod_file)
 							unit_sync = self.unitSync.getResult()
 							self.client.updateBInfo(unit_sync['mapHesh'],map_name)
+							print(colored('[INFO]', 'green'), colored(self.username+': chmapping to '+map_name, 'white'))
+
 						except:
 							print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
 							#hosterCTL[self.bid]='null'
@@ -213,7 +219,6 @@ class Battle(threading.Thread):
 						self.client.sayChat('bus',self.teamAssign(teamConfig))
 					if msg.startswith("leader") :
 						leaderConfig[msg.split()[1]]=msg.split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
-=======
 			try:
 				if ctl["bid"] != self.bid:    #do nothing if its not my business
 					#deliver.task_done()
@@ -260,7 +265,6 @@ class Battle(threading.Thread):
 					self.client.sayChat('bus',self.teamAssign(teamConfig))
 				if msg.startswith("leader") :
 					leaderConfig[msg.split()[1]]=msg.split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
->>>>>>> upstream/master
 						# msg.split()[1] returns team letter
 						# msg.split()[2] returns the leader usrname
 						#print(msg.split()[1:3])
@@ -268,7 +272,6 @@ class Battle(threading.Thread):
 						#print(leaderConfig)
 						#print(msg.split())
 					
-<<<<<<< HEAD
 					if msg.startswith("addAI"):
 						aiList=aiList+msg.split()[1]+' '
 						self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
@@ -277,7 +280,6 @@ class Battle(threading.Thread):
 						
 						aiList.replace(msg.split()[1]+' ', '')
 						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
-=======
 				if msg.startswith("addAI"):
 					aiList=aiList+msg.split()[1]+' '
 					self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
@@ -286,7 +288,6 @@ class Battle(threading.Thread):
 						
 					aiList.replace(msg.split()[1]+' ', '')
 					self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
->>>>>>> upstream/master
 					#deliver.task_done()
 				#else:   #the bid is mine, however the issuer of the cmd is not the host
 					#deliver.task_done()

@@ -71,43 +71,51 @@ if __name__ == "__main__":
 				ctl = {
 					"bid": msg['bid'],
 					"msg": 'chmap '+msg['map'],
-					"caller":user
+					"caller":user,
+					"ttl":0
 				}
+				#print('satisfying chmap from main')
 			if 'leave' in msg:
 				ctl = {
 					"bid": msg['bid'],
 					"msg": "left "+user,
-					"caller":user
+					"caller":user,
+					"ttl":0
 				}
 			if 'start' in msg:
 				ctl = {
 					"bid": msg['bid'],
 					"msg": "start "+user,
-					"caller":user
+					"caller":user,
+					"ttl":0
 				}
 			if 'leader' in msg:
 				ctl = {
 					"bid": msg['bid'],
 					"msg":"leader "+msg['leader'],
-					"caller":user
+					"caller":user,
+					"ttl":0
 				}
 			if 'player' in msg:
 				ctl = {
 					"bid": msg['bid'],
 					"msg": "changeTeams "+msg['player'],
-					"caller":user
+					"caller":user,
+					"ttl":0
 				}
 			if 'AI' in msg:
 				ctl = {
 					"bid": msg['bid'],
 					"msg": "addAI "+msg['AI'],
-					"caller":user
+					"caller":user,
+					"ttl":0
 				}
 			if 'kAI' in msg:
 				ctl = {
 					"bid": msg['bid'],
 					"msg": "killAI "+msg['kAI'],
-					"caller":user
+					"caller":user,
+					"ttl":0
 				}
 				#print ("sending："+"changeTeams "+user+" "+msg['player'])
 			#print('aaaa')

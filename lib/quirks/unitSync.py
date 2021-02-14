@@ -41,11 +41,12 @@ class UnitSync:
 		os.chdir(self.startdir)
 		return unit_sync
 	
-	def syn2map(self,filename):
+	def syn2map(self,requestedMapName):
 		mapCount = self._getMapCount()
+		requestedMapName=requestedMapName.replace('🦔', ' ')
 		for i in range(mapCount):
 			mapName = self._getMapName(i).decode('utf-8')
-			if filename in mapName:
+			if requestedMapName in mapName:
 				fname = self._getMapFileName(i).decode('utf-8')
 				break
 		else:
@@ -56,8 +57,8 @@ class UnitSync:
 		print( mapName, fname )
 		mapName, fname = fname, mapName
 		mapName = mapName[5:-4]
-		fname = fname.lower().replace(' ', '🦔') + ".sd7"
-
+		fname = fname.replace(' ', '🦔') + ".sd7"  #I doubt map file name is used
+		mapName = mapName.replace(' ', '🦔')
 		print( colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile: '+fname, 'white'))
 		return {'mapName': mapName, 'fileName': fname}
 	
@@ -65,7 +66,7 @@ class UnitSync:
 		mapList=''
 		mapCount = self._getMapCount()
 		for i in range(mapCount):
-			mapList+=self._getMapName(i).decode('utf-8')+' '
+			mapList+=self._getMapName(i).decode('utf-8').replace(' ', '🦔')+' '
 		os.chdir(self.startdir)
 		return mapList
 
