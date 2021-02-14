@@ -53,9 +53,10 @@ class UnitSync:
 			print(colored('[ERRO]', 'red'), colored(self.username+'/unitSync: map not found', 'white'))
 			return {'mapName': None, 'fileName': None}
 
+		print( mapName, fname )
 		mapName, fname = fname, mapName
 		mapName = mapName[5:-4]
-		fname = fname.lower().replace(' ', '_') + ".sd7"
+		fname = fname.lower().replace(' ', '🦔') + ".sd7"
 
 		print( colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile: '+fname, 'white'))
 		return {'mapName': mapName, 'fileName': fname}
@@ -67,3 +68,6 @@ class UnitSync:
 			mapList+=self._getMapName(i).decode('utf-8')+' '
 		os.chdir(self.startdir)
 		return mapList
+
+if __name__ == '__main__':
+	pass

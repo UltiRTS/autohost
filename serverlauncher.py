@@ -23,7 +23,7 @@ class ServerLauncher():
 		#os.system('echo "NumPlayers='+str(int(len(self.players)/2))+';" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## insert number of self.players
 		#print("number of self.players is "+str(int(len(self.players)/2)))
 
-		os.system('echo \'Mapname='+str(self.unitSync.syn2map(self.cmds['map'])['mapName'])+';\' >> /tmp/battle'+str(self.battlePort)+'.txt');
+		os.system('echo \'Mapname='+str(self.unitSync.syn2map(self.cmds['map'])['mapName'].replace('🦔', ' '))+';\' >> /tmp/battle'+str(self.battlePort)+'.txt');
 
 
 		for player in self.players:
