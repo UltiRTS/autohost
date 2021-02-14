@@ -123,9 +123,11 @@ class Client():
 								#print('bbb')
 								#print (playerMatrix[i])
 								pindex+=1
-							
+								
+						
 							for j in AI.split():
 								playerMatrix[j]={'team':0,'muted':0,'isAI':True,'index':pindex,'isLeader':False}
+								pindex+=1
 							return playerMatrix
 				except:
 					continue
