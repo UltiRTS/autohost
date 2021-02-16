@@ -228,8 +228,10 @@ class Battle(threading.Thread):
 						self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
 						
 					if msg.startswith("killAI"):
-						
-						aiList.replace(msg.split()[1]+' ', '')
+						print('before kai'+str(aiList))
+						#print('replacing'+msg.split()[1]+' ')
+						aiList=aiList.replace(msg.split()[1]+' ', '')
+						print('after kai'+str(aiList))
 						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
 
 					#deliver.task_done()
