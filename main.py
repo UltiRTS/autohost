@@ -48,6 +48,7 @@ if __name__ == "__main__":
 
 	BtlPtr=0
 	battle=[]
+	
 # ,'gemType': 'default', 'isPasswded': False, 'passwd':"", 'mapFile': 'comet_catcher_redux.sd7', 'modFile': '0465683c70018f80a17b92ed78174d19.sdz', 'engineName': 'Spring', 'engineVersion': '104.0.1-1435-g79d77ca maintenance', 'mapName': 'Comet Catcher Redux', 'roomName': 'Test Room', 'gameName': 'Zero-K v1.8.3.5'
 	
 	while True:
@@ -66,7 +67,7 @@ if __name__ == "__main__":
 			BtlPtr+=1
 		else:
 			# adding the ctl to Message queue, when all ctl been got and processed, the `hoster.py` call task_done then back to `main.py` to move to next command
-			ctl = None
+			
 			if 'map' in msg:
 				ctl = {
 					"bid": msg['bid'],
@@ -74,6 +75,7 @@ if __name__ == "__main__":
 					"caller":user,
 					"ttl":0
 				}
+				deliver.put(ctl)
 				#print('satisfying chmap from main')
 			if 'leave' in msg:
 				ctl = {
@@ -82,6 +84,8 @@ if __name__ == "__main__":
 					"caller":user,
 					"ttl":0
 				}
+				deliver.put(ctl)
+				
 			if 'start' in msg:
 				ctl = {
 					"bid": msg['bid'],
@@ -89,6 +93,8 @@ if __name__ == "__main__":
 					"caller":user,
 					"ttl":0
 				}
+				deliver.put(ctl)
+				
 			if 'leader' in msg:
 				ctl = {
 					"bid": msg['bid'],
@@ -96,6 +102,8 @@ if __name__ == "__main__":
 					"caller":user,
 					"ttl":0
 				}
+				deliver.put(ctl)
+				
 			if 'player' in msg:
 				ctl = {
 					"bid": msg['bid'],
@@ -103,6 +111,8 @@ if __name__ == "__main__":
 					"caller":user,
 					"ttl":0
 				}
+				deliver.put(ctl)
+				
 			if 'AI' in msg:
 				ctl = {
 					"bid": msg['bid'],
@@ -110,6 +120,8 @@ if __name__ == "__main__":
 					"caller":user,
 					"ttl":0
 				}
+				deliver.put(ctl)
+				
 			if 'kAI' in msg:
 				ctl = {
 					"bid": msg['bid'],
@@ -117,9 +129,10 @@ if __name__ == "__main__":
 					"caller":user,
 					"ttl":0
 				}
+				deliver.put(ctl)
 				#print ("sending："+"changeTeams "+user+" "+msg['player'])
 			#print('aaaa')
-			deliver.put(ctl)
+			
 			#print('bbbbb')
 			#deliver.join()
 			#print('cccc')

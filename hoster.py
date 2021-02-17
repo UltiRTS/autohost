@@ -172,6 +172,7 @@ class Battle(threading.Thread):
 			#print(self.hostedby+"is running with bid"+self.bid)
 
 			ctl = deliver.get()
+			print(ctl)
 			print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg'], 'white'))
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				#deliver.task_done()
