@@ -136,34 +136,35 @@ class ServerLauncher():
 		os.system('echo "}" >> /tmp/battle'+str(self.battlePort)+'.txt');
 		os.system('echo "}" >> /tmp/battle'+str(self.battlePort)+'.txt');
 		
-	@staticmethod
-	def engineAlive():
-		try:
-			pids = subprocess.check_output(['pidof', 'spring-dedicated'])
-		# not alive
-		except subprocess.CalledProcessError:
-			return False	
+	#@staticmethod     ##why?
+	#def engineAlive(self):  #this function seems to be un-needed
+		#try:
+			#pids = subprocess.check_output(['pidof', 'spring-dedicated'])
 		
-		return True
+		#try:
+			#os.kill(self.engine.pid, 0)
+		#except OSError:
+			#return False
+		#return True
 		
-	def killServer(self):
+	def killServer(self):     
 		if self.engine:
 			self.engine.terminate()
 		
 		# when engine is alive
 		if self.engine.poll() is None:
-			return False
+			return False   #returns false when not terminated(no return code was generated)
 		else:
-			self.engine = None
+			self.engine = None   #true when terminated with a return code
 			return True
 				
 	def launch(self):
 		#os.system('./engine/spring-dedicated /tmp/battle'+str(self.battlePort)+'.txt');
 		#self.autohost.free_autohost(self.username)
-		if not self.engineAlive():
-			self.engine = subprocess.Popen(["engine/spring-dedicated", "/tmp/battle" + str(self.battlePort) + '.txt'])
-			if self.engine.poll() is None:
-				return True
-			else:
-				self.engine = None
-				return False
+		#if not self.engineAlive():   #no need to check here, it should be done in hoster
+		self.engine = subprocess.Popen(["engine/spring-dedicated", "/tmp/battle" + str(self.battlePort) + '.txt'])
+		if self.engine.poll() is None:
+			return True    #Successfully launched?
+		else:
+			self.engine = None
+			return False   #not launched?

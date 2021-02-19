@@ -39,6 +39,7 @@ class Battle(threading.Thread):
 		self.listeners     = []
 		self.client        = Client(self.battlePort,self.startDir)
 		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
+		self.isLaunched= False;
 	
 	def letter2Teams(self,playerCMD):
 		receivedStr= playerCMD.split(" ")
@@ -63,6 +64,9 @@ class Battle(threading.Thread):
 		return(players)
 	
 	def gemStart(self, players,numTeams,xtraOptions={}):
+		if self.isLaunched:
+			print(colored('[WARN]', 'red'), colored(self.username+': Cannot start a game twice!', 'white'))
+			return
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
 		#players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
 		#ais=[] #virtually the same as the player scheme but directs bot section behavior
@@ -71,7 +75,7 @@ class Battle(threading.Thread):
 		server=ServerLauncher(self.startDir,self.battlePort,players,xtraOptions,self.username,numTeams)
 		server.scriptGen() #generate the script
 		self.client.startBattle()
-		server.launch()
+		self.isLaunched=server.launch()
 		#time.sleep(2)
 		self.client.stopBattle()
 		
@@ -84,8 +88,7 @@ class Battle(threading.Thread):
 	
 	def balance(self,ppl,gemType,leaderConfig,preDefined="false"):
 		# check if started
-		if ServerLauncher.engineAlive():
-			return
+		
 		
 		i=0
 		if gemType=='fafafa':
