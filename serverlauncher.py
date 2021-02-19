@@ -6,20 +6,24 @@ import subprocess
 
 class ServerLauncher():
 	
-	def __init__(self,startDir,battlePort,players,cmds,username,numTeams):
+	def __init__(self):
 		self.teamPtr=0
+		
+		
+		
+		
+
+		# using subprocess to invoke spring engine
+		
+	
+	def scriptGen(self,startDir,battlePort,players,cmds,username,numTeams):
 		self.startDir=startDir
 		self.battlePort=battlePort
 		self.players=players
 		self.cmds=cmds
 		self.username=username
-		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 		self.numTeams=numTeams
-
-		# using subprocess to invoke spring engine
-		self.engine = None
-	
-	def scriptGen(self):
+		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 		os.system('echo [GAME] > /tmp/battle'+str(self.battlePort)+'.txt');
 		os.system('echo { >> /tmp/battle'+str(self.battlePort)+'.txt');
 	
@@ -137,15 +141,15 @@ class ServerLauncher():
 		os.system('echo "}" >> /tmp/battle'+str(self.battlePort)+'.txt');
 		
 	#@staticmethod     ##why?
-	#def engineAlive(self):  #this function seems to be un-needed
+	def engineAlive(self):  #this function seems to be un-needed
 		#try:
 			#pids = subprocess.check_output(['pidof', 'spring-dedicated'])
 		
-		#try:
-			#os.kill(self.engine.pid, 0)
-		#except OSError:
-			#return False
-		#return True
+		try:
+			os.kill(self.engine.pid, 0)
+		except:
+			return False  #the engine has not been running
+		return True
 		
 	def killServer(self):     
 		if self.engine:

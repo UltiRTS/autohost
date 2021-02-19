@@ -40,7 +40,8 @@ class Battle(threading.Thread):
 		self.client        = Client(self.battlePort,self.startDir)
 		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 		self.isLaunched= False;
-	
+		self.server=ServerLauncher()
+		
 	def letter2Teams(self,playerCMD):
 		receivedStr= playerCMD.split(" ")
 		n=0
@@ -64,7 +65,7 @@ class Battle(threading.Thread):
 		return(players)
 	
 	def gemStart(self, players,numTeams,xtraOptions={}):
-		if self.isLaunched:
+		if self.server.engineAlive():
 			print(colored('[WARN]', 'red'), colored(self.username+': Cannot start a game twice!', 'white'))
 			return
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
@@ -72,10 +73,10 @@ class Battle(threading.Thread):
 		#ais=[] #virtually the same as the player scheme but directs bot section behavior
 		xtraOptions['map']=self.map_name
 		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
-		server=ServerLauncher(self.startDir,self.battlePort,players,xtraOptions,self.username,numTeams)
-		server.scriptGen() #generate the script
+		
+		self.server.scriptGen(self.startDir,self.battlePort,players,xtraOptions,self.username,numTeams) #generate the script
 		self.client.startBattle()
-		self.isLaunched=server.launch()
+		self.server.launch()
 		#time.sleep(2)
 		self.client.stopBattle()
 		
