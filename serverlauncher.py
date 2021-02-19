@@ -1,6 +1,9 @@
 import os
 
 from lib.quirks.unitSync import UnitSync
+import subprocess
+
+
 class ServerLauncher():
 	
 	def __init__(self,startDir,battlePort,players,cmds,username,numTeams):
@@ -12,6 +15,9 @@ class ServerLauncher():
 		self.username=username
 		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 		self.numTeams=numTeams
+
+		# using subprocess to invoke spring engine
+		self.engine = None
 	
 	def scriptGen(self):
 		os.system('echo [GAME] > /tmp/battle'+str(self.battlePort)+'.txt');
@@ -130,7 +136,34 @@ class ServerLauncher():
 		os.system('echo "}" >> /tmp/battle'+str(self.battlePort)+'.txt');
 		os.system('echo "}" >> /tmp/battle'+str(self.battlePort)+'.txt');
 		
-
+	@staticmethod
+	def engineAlive():
+		try:
+			pids = subprocess.check_output(['pidof', 'spring-dedicated'])
+		# not alive
+		except subprocess.CalledProcessError:
+			return False	
+		
+		return True
+		
+	def killServer(self):
+		if self.engine:
+			self.engine.terminate()
+		
+		# when engine is alive
+		if self.engine.poll() is None:
+			return False
+		else:
+			self.engine = None
+			return True
+				
 	def launch(self):
-		os.system('./engine/spring-dedicated /tmp/battle'+str(self.battlePort)+'.txt');
+		#os.system('./engine/spring-dedicated /tmp/battle'+str(self.battlePort)+'.txt');
 		#self.autohost.free_autohost(self.username)
+		if not self.engineAlive():
+			self.engine = subprocess.Popen(["engine/spring-dedicated", "/tmp/battle" + str(self.battlePort) + '.txt'])
+			if self.engine.poll() is None:
+				return True
+			else:
+				self.engine = None
+				return False

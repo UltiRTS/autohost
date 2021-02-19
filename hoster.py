@@ -13,6 +13,7 @@ import os
 import lib.cmdInterpreter
 import random
 
+
 deliver = queue.Queue()
 
 class Battle(threading.Thread):
@@ -82,6 +83,10 @@ class Battle(threading.Thread):
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'action':'listMap','room':self.bid,'available-maps': mapList}))
 	
 	def balance(self,ppl,gemType,leaderConfig,preDefined="false"):
+		# check if started
+		if ServerLauncher.engineAlive():
+			return
+		
 		i=0
 		if gemType=='fafafa':
 			self.gemStart()
