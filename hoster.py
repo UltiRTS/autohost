@@ -181,16 +181,19 @@ class Battle(threading.Thread):
 
 			ctl = deliver.get()
 			print(ctl)
-			print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg'], 'white'))
+			
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				#deliver.task_done()
 				ctl["ttl"]+=1
 				if ctl["ttl"]>=20:
 					continue
 				#else:
-					deliver.put(ctl)
+				deliver.put(ctl)
+				continue
+			
 				#deliver.join()
 			else:   #do the following if the bid matches mine
+				print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg'], 'white'))
 				msg = ctl["msg"]	
 				if ctl['caller']==self.hostedby:   #do the following if the bid matches mine and is from the one who hosted the btl
 					if msg.startswith("left"):
