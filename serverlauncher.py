@@ -89,7 +89,7 @@ class ServerLauncher():
 			os.system('echo "NumAllies=0;" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 			os.system('echo "}" >> /tmp/battle'+str(self.battlePort)+'.txt'); 
 			self.teamPtr+=1;
-
+		self.teamPtr=0
 	#########NON-user set SETTINGS ARE OUT OF THE INTERPRETER LOOP
 	#########GAME SELECTOR MODULE###############################	
 		os.system('echo "Gametype=Zero-K-master.sdd;" >> /tmp/battle'+str(self.battlePort)+'.txt');   ## for now it's just zk, extend when we have our own game
@@ -146,10 +146,11 @@ class ServerLauncher():
 			#pids = subprocess.check_output(['pidof', 'spring-dedicated'])
 		
 		try:
-			os.kill(self.engine.pid, 0)
+			if self.engine.poll() is None:
+				return True
 		except:
 			return False  #the engine has not been running
-		return True
+		return False
 		
 	def killServer(self):     
 		if self.engine:
