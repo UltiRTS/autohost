@@ -41,6 +41,7 @@ class Battle(threading.Thread):
 		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 		self.isLaunched= False;
 		self.server=ServerLauncher()
+		self.hosterMem={}
 		
 	def letter2Teams(self,playerCMD):
 		receivedStr= playerCMD.split(" ")
@@ -190,13 +191,15 @@ class Battle(threading.Thread):
 					continue
 				#else:
 				deliver.put(ctl)
-				continue
+				#continue
 			
 				#deliver.join()
 			else:   #do the following if the bid matches mine
 				print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg'], 'white'))
 				msg = ctl["msg"]	
-				if ctl['caller']==self.hostedby:   #do the following if the bid matches mine and is from the one who hosted the btl
+				numofPpl=self.client.getUserinChat(self.bid,self.username,'')['index']+1
+				if ctl['caller']==self.hostedby or self.hosterMem[ctl["msg"]]>= numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl
+					self.hosterMem[ctl["msg"]]=0
 					if msg.startswith("left"):
 						self.client.exit()
 						self.autohost.free_autohost(self.username)
@@ -246,7 +249,8 @@ class Battle(threading.Thread):
 						aiList=aiList.replace(msg.split()[1]+' ', '')
 						print('after kai'+str(aiList))
 						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
-
+				else:
+					self.hosterMem[ctl["msg"]]+=1
 					#deliver.task_done()
 				#else:   #the bid is mine, however the issuer of the cmd is not the host
 					#deliver.task_done()
