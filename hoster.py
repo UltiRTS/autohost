@@ -195,11 +195,19 @@ class Battle(threading.Thread):
 			
 				#deliver.join()
 			else:   #do the following if the bid matches mine
-				print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg'], 'white'))
+				try:
+					oldVoter=' '+self.hosterMem[ctl["msg"]]
+				except:
+					oldVoter=''
+				self.hosterMem[ctl["msg"]]=ctl['caller']+oldVoter
+				#print(oldVoter)
+				#print(ctl['caller'])
+				#print(self.hosterMem[ctl["msg"]])
 				msg = ctl["msg"]	
-				numofPpl=self.client.getUserinChat(self.bid,self.username,'')['index']+1
-				if ctl['caller']==self.hostedby or self.hosterMem[ctl["msg"]]>= numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl
-					self.hosterMem[ctl["msg"]]=0
+				numofPpl=len(self.client.getUserinChat(self.bid,self.username,''))
+				print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' repeated '+str(len(set(self.hosterMem[ctl["msg"]].split())))+' times; minimum is '+ str(numofPpl/2), 'white'))
+				if ctl['caller']==self.hostedby or len(set(self.hosterMem[ctl["msg"]].split()))> numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl
+					self.hosterMem[ctl["msg"]]=''
 					if msg.startswith("left"):
 						self.client.exit()
 						self.autohost.free_autohost(self.username)
@@ -249,8 +257,7 @@ class Battle(threading.Thread):
 						aiList=aiList.replace(msg.split()[1]+' ', '')
 						print('after kai'+str(aiList))
 						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
-				else:
-					self.hosterMem[ctl["msg"]]+=1
+				
 					#deliver.task_done()
 				#else:   #the bid is mine, however the issuer of the cmd is not the host
 					#deliver.task_done()
