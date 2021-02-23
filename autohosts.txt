@@ -3,3 +3,5 @@ Autohost_1
 Autohost_2
 Autohost_3
 Autohost_4
+Autohost_5
+Autohost_6

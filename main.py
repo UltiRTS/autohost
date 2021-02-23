@@ -69,67 +69,72 @@ if __name__ == "__main__":
 			# adding the ctl to Message queue, when all ctl been got and processed, the `hoster.py` call task_done then back to `main.py` to move to next command
 			
 			if 'map' in msg:
-				ctl = {
-					"bid": msg['bid'],
-					"msg": 'chmap '+msg['map'],
-					"caller":user,
-					"ttl":0
-				}
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": msg['map'],
+						"caller":user,
+						"ttl":0,
+						"action":'chmap'
+					}
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete chmap cmd', 'white'))
+					
 				deliver.put(ctl)
 				#print('satisfying chmap from main')
 			if 'leave' in msg:
-				ctl = {
-					"bid": msg['bid'],
-					"msg": "left "+user,
-					"caller":user,
-					"ttl":0
-				}
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": user,
+						"caller":user,
+						"ttl":0,
+						"action":'left'
+					}
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete leave cmd', 'white'))
 				deliver.put(ctl)
 				
 			if 'start' in msg:
-				ctl = {
-					"bid": msg['bid'],
-					"msg": "start "+user,
-					"caller":user,
-					"ttl":0
-				}
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": user,
+						"caller":user,
+						"ttl":0,
+						"action":'start'
+					}
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete start cmd', 'white'))
 				deliver.put(ctl)
 				
 			if 'leader' in msg:
-				ctl = {
+				try:
+					ctl = {
 					"bid": msg['bid'],
 					"msg":"leader "+msg['leader'],
 					"caller":user,
-					"ttl":0
-				}
+					"ttl":0,
+					"action":'leader'
+					}
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete leader cmd', 'white'))
 				deliver.put(ctl)
 				
 			if 'player' in msg:
-				ctl = {
+				try:
+					ctl = {
 					"bid": msg['bid'],
-					"msg": "changeTeams "+msg['player'],
+					"msg": msg['player'],
 					"caller":user,
-					"ttl":0
-				}
-				deliver.put(ctl)
-				
-			if 'AI' in msg:
-				ctl = {
-					"bid": msg['bid'],
-					"msg": "addAI "+msg['AI'],
-					"caller":user,
-					"ttl":0
-				}
-				deliver.put(ctl)
-				
-			if 'kAI' in msg:
-				ctl = {
-					"bid": msg['bid'],
-					"msg": "killAI "+msg['kAI'],
-					"caller":user,
-					"ttl":0
-				}
-				deliver.put(ctl)
+					"ttl":0,
+					"action":'teams'
+					}
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete player cmd', 'white'))
+			deliver.put(ctl)
+			#print('main loop')
+			
 				#print ("sending："+"changeTeams "+user+" "+msg['player'])
 			#print('aaaa')
 			

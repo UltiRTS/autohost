@@ -62,7 +62,7 @@ class Battle(threading.Thread):
 			for player in cmdDict[key]:
 				players[player]=i
 			i=i+1
-		print("l2teams:"+str(players))
+		print("l2teams:"+str(players))    #should return something like {'Autohost_0': 0, 'GPT_2': 0, 'GPT_1': 0, 'Teresa': 0, 'GPT_3': 1}
 		return(players)
 	
 	def gemStart(self, players,numTeams,xtraOptions={}):
@@ -82,11 +82,11 @@ class Battle(threading.Thread):
 		self.client.stopBattle()
 		
 	def listMap(self):
-		mapList = random.sample(self.unitSync.mapList().split(), 5)
-		mapList = ' '.join(mapList)
-		print(colored('[INFO]', 'green'), colored(self.username+': Listing map with cmd:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': mapList}), 'white'))
+		self.mapList = random.sample(self.unitSync.mapList().split(), 5)
+		self.mapList = ' '.join(self.mapList)
+		print(colored('[INFO]', 'green'), colored(self.username+': Listing map with cmd:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': self.mapList+" "}), 'white'))
 		
-		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'action':'listMap','room':self.bid,'available-maps': mapList}))
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'join':self.bid,'available-maps': self.mapList+" "}))
 	
 	def balance(self,ppl,gemType,leaderConfig,preDefined="false"):
 		# check if started
@@ -135,15 +135,9 @@ class Battle(threading.Thread):
 			print('player custom config'+str(ppl))
 			self.gemStart(ppl,2)
 			
-	def teamAssign(self,teamConfig):
-		print(colored('[INFO]', 'green'), colored(self.username+': Returning teamConfig:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'player': teamConfig}), 'white'))
-		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','action':'teamAssign','room':self.bid,'player': teamConfig}))
-	
-	def aiResponse(self,AI):
-		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','action':'aiAdd','room':self.bid,'AI': AI}))
-	
-	def kaiResponse(self,AI):
-		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':'all','action':'aiKill','room':self.bid,'AI': AI}))
+	def stateDump(self):
+		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'user':'all', 'teams':self.teamConfig, 'available-maps': self.mapList, 'map':self.map_name+' '}))
+		
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		
@@ -167,8 +161,8 @@ class Battle(threading.Thread):
 		#hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		#client.clearBuffer(self.username)
-		teamConfig=''
-		leaderConfig={}
+		self.teamConfig=''
+		self.leaderConfig={}
 		aiList=''
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
@@ -177,96 +171,71 @@ class Battle(threading.Thread):
 		self.client.clearBuffer(self.username)
 
 		while True:
-			#client.ping(self.username)
-			#time.sleep(1)
-			#print(self.hostedby+"is running with bid"+self.bid)
-
 			ctl = deliver.get()
-			print(ctl)
+			#print('aaa')
 			
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				#deliver.task_done()
 				ctl["ttl"]+=1
-				if ctl["ttl"]>=20:
+				print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' does not belong to this autohost', 'white'))
+				
+				if ctl["ttl"]<=5:
+					deliver.put(ctl)
+					time.sleep(0.5)
+				else:
+					print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' disposed of', 'white'))
 					continue
 				#else:
-				deliver.put(ctl)
-				#continue
-			
-				#deliver.join()
+				
+
 			else:   #do the following if the bid matches mine
+				print(ctl)
 				try:
 					oldVoter=' '+self.hosterMem[ctl["msg"]]
 				except:
 					oldVoter=''
 				self.hosterMem[ctl["msg"]]=ctl['caller']+oldVoter
-				#print(oldVoter)
-				#print(ctl['caller'])
-				#print(self.hosterMem[ctl["msg"]])
-				msg = ctl["msg"]	
 				numofPpl=len(self.client.getUserinChat(self.bid,self.username,''))
 				print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' repeated '+str(len(set(self.hosterMem[ctl["msg"]].split())))+' times; minimum is '+ str(numofPpl/2), 'white'))
 				if ctl['caller']==self.hostedby or len(set(self.hosterMem[ctl["msg"]].split()))> numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl
 					self.hosterMem[ctl["msg"]]=''
-					if msg.startswith("left"):
+					if ctl["action"]=="left":
 						self.client.exit()
 						self.autohost.free_autohost(self.username)
 						# exit thread
 						return
-					if msg.startswith("chmap"):
-						self.map_file=msg.split()[1]
+					
+					if ctl["action"]=="chmap":
+						#try:
+						self.map_file=ctl["msg"].split()[0]
 						mapInfo=self.unitSync.syn2map(self.map_file)
 						self.map_file=mapInfo['fileName']
 						self.map_name=mapInfo['mapName']
-							#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
-						try:
-							self.unitSync.startHeshThread(self.map_file,self.mod_file)
-							unit_sync = self.unitSync.getResult()
-							self.client.updateBInfo(unit_sync['mapHesh'],self.map_name)
-							print(colored('[INFO]', 'green'), colored(self.username+': chmapping to '+self.map_name, 'white'))
-							print(colored('[INFO]', 'green'), colored(self.username+': fileName is '+self.map_file, 'white'))
-
-						except:
-							print(colored('[INFO]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
-							#hosterCTL[self.bid]='null'
-
-					if msg.startswith("start"):
-						ppl=self.client.getUserinChat(self.bid,self.username,aiList)
-							#self.client.getUserinChat(self.bid,self.username)
+						self.unitSync.startHeshThread(self.map_file,self.mod_file)
+						unit_sync = self.unitSync.getResult()
+						self.client.updateBInfo(unit_sync['mapHesh'],self.map_name)
+						print(colored('[INFO]', 'green'), colored(self.username+': chmapping to '+self.map_name, 'white'))
+						print(colored('[INFO]', 'green'), colored(self.username+': fileName is '+self.map_file, 'white'))
+						#except:
+							#print(colored('[WARN]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
 							
-						self.balance(ppl,'custom',leaderConfig,teamConfig)
-							#hosterCTL[self.bid]='null'
-					
-					if msg.startswith("changeTeams"):
-						teamConfig=' '
-						teamConfig=teamConfig.join(msg.split()[1:])
-						print('teamConfig:'+str(teamConfig))
-#							#hosterCTL[self.bid]='null'
-						self.client.sayChat('bus',self.teamAssign(teamConfig))
-					
-					if msg.startswith("leader") :
-						leaderConfig[msg.split()[1]]=msg.split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
-					
-					if msg.startswith("addAI"):
-						aiList=aiList+msg.split()[1]+' '
-						self.client.sayChat('bus',self.aiResponse(msg.split()[1]))
+
+					if ctl["action"]=="start":
+						ppl=self.client.getUserinChat(self.bid,self.username,self.aiList)
+						self.balance(ppl,'custom',self.leaderConfig,self.teamConfig)
 						
-					if msg.startswith("killAI"):
-						print('before kai'+str(aiList))
-						#print('replacing'+msg.split()[1]+' ')
-						aiList=aiList.replace(msg.split()[1]+' ', '')
-						print('after kai'+str(aiList))
-						self.client.sayChat('bus',self.kaiResponse(msg.split()[1]))
-				
-					#deliver.task_done()
-				#else:   #the bid is mine, however the issuer of the cmd is not the host
-					#deliver.task_done()
-					#deliver.put(ctl)   #dispose of this cmd!
-					#deliver.join()
-
-				
-			#if lib.quirks.hosterCTL.isInetDebug:
-			#	self.client.clearBuffer(self.username)
-
-            
-#sock.close()
+					
+					if ctl["action"]=="teams":
+						
+						#try:
+						self.teamConfig=ctl["msg"]
+						print('teamConfig:'+str(self.teamConfig))
+						self.stateDump();
+						#except:
+						#	print(colored('[WARN]', 'red'), colored(self.username+': dropping bad changeTeams cmd!', 'white'))
+					
+					if ctl["action"]=="leader":
+						try:
+							self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
+						except:
+							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))
