@@ -68,6 +68,7 @@ class Battle(threading.Thread):
 	def gemStart(self, players,numTeams,xtraOptions={}):
 		if self.server.engineAlive():
 			print(colored('[WARN]', 'red'), colored(self.username+': Cannot start a game twice!', 'white'))
+			self.stateDump(True)
 			return
 		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
 		#players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
@@ -135,8 +136,11 @@ class Battle(threading.Thread):
 			print('player custom config'+str(ppl))
 			self.gemStart(ppl,2)
 			
-	def stateDump(self):
-		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'user':'all', 'teams':self.teamConfig, 'available-maps': self.mapList, 'map':self.map_name+' '}))
+	def stateDump(self,isLoading=False):
+		if isLoading:
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig, 'available-maps': self.mapList, 'map':self.map_name+' '}))
+		else:
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'available-maps': self.mapList, 'map':self.map_name+' '}))
 		
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
@@ -199,6 +203,9 @@ class Battle(threading.Thread):
 				numofPpl=len(self.client.getUserinChat(self.bid,self.username,''))
 				print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' repeated '+str(len(set(self.hosterMem[ctl["msg"]].split())))+' times; minimum is '+ str(numofPpl/2), 'white'))
 				if ctl['caller']==self.hostedby or len(set(self.hosterMem[ctl["msg"]].split()))> numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl
+					
+						
+					
 					self.hosterMem[ctl["msg"]]=''
 					if ctl["action"]=="left":
 						self.client.exit()
@@ -207,18 +214,18 @@ class Battle(threading.Thread):
 						return
 					
 					if ctl["action"]=="chmap":
-						#try:
-						self.map_file=ctl["msg"].split()[0]
-						mapInfo=self.unitSync.syn2map(self.map_file)
-						self.map_file=mapInfo['fileName']
-						self.map_name=mapInfo['mapName']
-						self.unitSync.startHeshThread(self.map_file,self.mod_file)
-						unit_sync = self.unitSync.getResult()
-						self.client.updateBInfo(unit_sync['mapHesh'],self.map_name)
-						print(colored('[INFO]', 'green'), colored(self.username+': chmapping to '+self.map_name, 'white'))
-						print(colored('[INFO]', 'green'), colored(self.username+': fileName is '+self.map_file, 'white'))
-						#except:
-							#print(colored('[WARN]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
+						try:
+							self.map_file=ctl["msg"].split()[0]
+							mapInfo=self.unitSync.syn2map(self.map_file)
+							self.map_file=mapInfo['fileName']
+							self.map_name=mapInfo['mapName']
+							self.unitSync.startHeshThread(self.map_file,self.mod_file)
+							unit_sync = self.unitSync.getResult()
+							self.client.updateBInfo(unit_sync['mapHesh'],self.map_name)
+							print(colored('[INFO]', 'green'), colored(self.username+': chmapping to '+self.map_name, 'white'))
+							print(colored('[INFO]', 'green'), colored(self.username+': fileName is '+self.map_file, 'white'))
+						except:
+							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad map cmd!', 'white'))
 							
 
 					if ctl["action"]=="start":
@@ -227,13 +234,12 @@ class Battle(threading.Thread):
 						
 					
 					if ctl["action"]=="teams":
-						
-						#try:
-						self.teamConfig=ctl["msg"]
-						print('teamConfig:'+str(self.teamConfig))
-						self.stateDump();
-						#except:
-						#	print(colored('[WARN]', 'red'), colored(self.username+': dropping bad changeTeams cmd!', 'white'))
+						try:
+							self.teamConfig=ctl["msg"]
+							print('teamConfig:'+str(self.teamConfig))
+							self.stateDump();
+						except:
+							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad changeTeams cmd!', 'white'))
 					
 					if ctl["action"]=="leader":
 						try:
