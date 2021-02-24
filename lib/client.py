@@ -60,13 +60,13 @@ class Client():
 		self.network.send(command)
 
 	def startBattle(self):
-		
-		command = 'MYSTATUS 1'
+		statsCode=self.__binToDeci('1011011')
+		command = 'MYSTATUS '+str(statsCode)
 		self.network.send(command)
 	
 	def stopBattle(self):
-		
-		command = 'MYSTATUS 0'
+		statsCode=self.__binToDeci('1011010')
+		command = 'MYSTATUS '+str(statsCode)
 		self.network.send(command)
 
 	def keepalive(self,username):
@@ -97,7 +97,7 @@ class Client():
 	def exit(self):
 		self.network.disconnect()
 		
-	def getUserinChat(self,channel,selAccount,AI):
+	def getUserinChat(self,channel,selAccount,teamConf):
 		self.joinChat(channel)
 		#print('aaa')
 		pindex=0
@@ -125,9 +125,10 @@ class Client():
 								pindex+=1
 								
 						
-							for j in AI.split():
-								playerMatrix[j]={'team':0,'muted':0,'isAI':True,'index':pindex,'isLeader':False}
-								pindex+=1
+							for j in teamConf.split():
+								if j.startswith('GPT'):
+									playerMatrix[j]={'team':0,'muted':0,'isAI':True,'index':pindex,'isLeader':False}
+									pindex+=1
 							return playerMatrix
 				except:
 					continue
@@ -144,3 +145,9 @@ class Client():
 				print(colored('[INET]', 'grey'), colored(username+': '+self.network.nextCmd(), 'white'))
 			else:
 				self.network.nextCmd()
+				
+	def __decimalToBinary(self, n): 
+		return bin(n).replace("0b", "") 
+	
+	def __binToDeci(self,n):
+		return int(n, 2)

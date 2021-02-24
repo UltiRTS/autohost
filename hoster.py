@@ -163,7 +163,7 @@ class Battle(threading.Thread):
 		#client.clearBuffer(self.username)
 		self.teamConfig=''
 		self.leaderConfig={}
-		aiList=''
+		self.aiList=''
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
@@ -179,9 +179,10 @@ class Battle(threading.Thread):
 				ctl["ttl"]+=1
 				print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' does not belong to this autohost', 'white'))
 				
-				if ctl["ttl"]<=5:
+				if ctl["ttl"]<=20:
 					deliver.put(ctl)
-					time.sleep(0.5)
+					time.sleep(0.1)
+					continue
 				else:
 					print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' disposed of', 'white'))
 					continue
@@ -221,7 +222,7 @@ class Battle(threading.Thread):
 							
 
 					if ctl["action"]=="start":
-						ppl=self.client.getUserinChat(self.bid,self.username,self.aiList)
+						ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
 						self.balance(ppl,'custom',self.leaderConfig,self.teamConfig)
 						
 					

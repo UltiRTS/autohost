@@ -77,10 +77,10 @@ if __name__ == "__main__":
 						"ttl":0,
 						"action":'chmap'
 					}
+					deliver.put(ctl)
 				except:
 					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete chmap cmd', 'white'))
 					
-				deliver.put(ctl)
 				#print('satisfying chmap from main')
 			if 'leave' in msg:
 				try:
@@ -91,9 +91,9 @@ if __name__ == "__main__":
 						"ttl":0,
 						"action":'left'
 					}
+					deliver.put(ctl)
 				except:
 					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete leave cmd', 'white'))
-				deliver.put(ctl)
 				
 			if 'start' in msg:
 				try:
@@ -104,9 +104,10 @@ if __name__ == "__main__":
 						"ttl":0,
 						"action":'start'
 					}
+					deliver.put(ctl)
 				except:
 					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete start cmd', 'white'))
-				deliver.put(ctl)
+				
 				
 			if 'leader' in msg:
 				try:
@@ -117,9 +118,10 @@ if __name__ == "__main__":
 					"ttl":0,
 					"action":'leader'
 					}
+					deliver.put(ctl)
 				except:
 					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete leader cmd', 'white'))
-				deliver.put(ctl)
+				
 				
 			if 'player' in msg:
 				try:
@@ -130,9 +132,10 @@ if __name__ == "__main__":
 					"ttl":0,
 					"action":'teams'
 					}
+					deliver.put(ctl)
 				except:
 					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete player cmd', 'white'))
-			deliver.put(ctl)
+			
 			#print('main loop')
 			
 				#print ("sending："+"changeTeams "+user+" "+msg['player'])
