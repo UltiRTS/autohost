@@ -65,7 +65,7 @@ class Battle(threading.Thread):
 		print("l2teams:"+str(players))    #should return something like {'Autohost_0': 0, 'GPT_2': 0, 'GPT_1': 0, 'Teresa': 0, 'GPT_3': 1}
 		return(players)
 	
-	def gemStart(self, players,numTeams,xtraOptions={}):
+	def gemStart(self, players,xtraOptions={}):
 		if self.server.engineAlive():
 			print(colored('[WARN]', 'red'), colored(self.username+': Cannot start a game twice!', 'white'))
 			self.stateDump(True)
@@ -75,12 +75,19 @@ class Battle(threading.Thread):
 		#ais=[] #virtually the same as the player scheme but directs bot section behavior
 		xtraOptions['map']=self.map_name
 		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
-		
+		numTeams=self.getAllyTeamNum(players)
 		self.server.scriptGen(self.startDir,self.battlePort,players,xtraOptions,self.username,numTeams) #generate the script
 		self.client.startBattle()
 		self.server.launch()
 		#time.sleep(2)
 		self.client.stopBattle()
+		
+	def getAllyTeamNum(self,players):
+		teamNum=1
+		for player in players:
+			if players[player]['team']+1>teamNum:
+				teamNum=players[player]['team']+1
+		return teamNum
 		
 	def listMap(self):
 		self.mapList = random.sample(self.unitSync.mapList().split(), 5)
@@ -134,7 +141,7 @@ class Battle(threading.Thread):
 						ppl[player]['isLeader']=True
 						
 			print('player custom config'+str(ppl))
-			self.gemStart(ppl,2)
+			self.gemStart(ppl)
 			
 	def stateDump(self,isLoading=False):
 		if isLoading:
