@@ -20,7 +20,7 @@ class Battle(threading.Thread):
 
 	
 
-	def __init__(self,userName, startDir,q, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort):
+	def __init__(self,userName, startDir, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort):
 		threading.Thread.__init__(self)
 		self.autohost = autohostFactory;
 		self.username = autohostFactory.new_autohost()
@@ -33,7 +33,7 @@ class Battle(threading.Thread):
 		self.engineVersion = engineVersion
 		self.roomName      = roomName
 		self.gameName      = gameName
-		self.q             = q
+		
 		self.battlePort    = battlePort
 		self.startDir      = startDir
 		self.listeners     = []
