@@ -2,7 +2,6 @@ import time
 import _thread
 import threading
 #from multiprocessing import Queue
-import queue
 from lib.client import Client
 from lib.quirks.unitSync import UnitSync
 from termcolor import colored
@@ -12,9 +11,9 @@ from serverlauncher import ServerLauncher
 import os
 import lib.cmdInterpreter
 import random
+from lib.server import deliver
+from lib.server import AutohostServer
 
-
-deliver = queue.Queue()
 
 class Battle(threading.Thread):
 
@@ -33,7 +32,7 @@ class Battle(threading.Thread):
 		self.engineVersion = engineVersion
 		self.roomName      = roomName
 		self.gameName      = gameName
-		
+		self.autohostServer= AutohostServer
 		self.battlePort    = battlePort
 		self.startDir      = startDir
 		self.listeners     = []
@@ -180,7 +179,10 @@ class Battle(threading.Thread):
 		#client.clearBuffer(self.username)
 		self.client.sayChat('bus',self.listMap())
 		self.client.clearBuffer(self.username)
-
+		
+		self.autohostServer('0.0.0.0',2000+self.battlePort)
+		self.autohostServer.start
+		
 		while True:
 			ctl = deliver.get()
 			#print('aaa')
@@ -201,7 +203,7 @@ class Battle(threading.Thread):
 				
 
 			else:   #do the following if the bid matches mine
-				print(ctl)
+				#print(ctl)
 				try:
 					oldVoter=' '+self.hosterMem[ctl["msg"]]
 				except:

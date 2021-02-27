@@ -1,6 +1,5 @@
 #from lib.message_queue import Deliver
 import time
-import threading
 import os
 from lib.client import Client
 import _thread
@@ -11,7 +10,7 @@ from lib.quirks.autohost_factory import AutohostFactory #ability to change crede
 from termcolor import colored
 import lib.cmdInterpreter
 from lib.quirks.hosterCTL import isInetDebug
-from hoster import deliver
+from lib.server import deliver
 #from multiprocessing import SimpleQueue
 password = b'password'
 map_file = 'Comet'
