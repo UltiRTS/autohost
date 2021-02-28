@@ -12,22 +12,22 @@ class serverNetwork:
 
 	def __init__(self):
 		self.cmd_queue = SimpleQueue()
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		#self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		if isInetDebug:
 			print(colored('[STCK]', 'grey'), colored('SERVER Network: Initing.', 'white'))
 	
 	def bind(self, server_ip, server_port=4000):
 		self.address=(server_ip, server_port)
 		self.sock.bind(self.address)
-		self.sock.listen(5)
+		#self.sock.listen(5)
 		if isInetDebug:
 			print(colored('[STCK]', 'grey'), colored('SERVER Network: Connecting.', 'white'))
 		
 	def receive(self):
-		newData, newAddr=self.sock.accept()  ##keep remaking connections when one client leaves
+		newData, newAddr=self.sock.recvfrom(1024)  ##keep remaking connections when one client leaves
 		while True:   #keep reading the next msg while the connection persists
-			recvData = newData.recv(1024).decode("utf8").split('\n')
+			recvData = newData.decode("utf8").split('\n')
 			if len(recvData) > 0:
 				for i in range(len(recvData)):
 					self.cmd_queue.put(recvData[i])

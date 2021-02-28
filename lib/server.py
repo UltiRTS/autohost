@@ -12,7 +12,7 @@ deliver = queue.Queue()
 
 class AutohostServer(threading.Thread):
 
-	def __init__(self, host='localhost', port=4000):
+	def __init__(self, host='0.0.0.0', port=4000):
 		threading.Thread.__init__(self)
 		self.serverNetwork=serverNetwork()
 		self.serverNetwork.bind(host,port)
