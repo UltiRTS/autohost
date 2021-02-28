@@ -20,7 +20,7 @@ class AutohostServer(threading.Thread):
 	def run(self):
 		while True:
 			self.serverNetwork.receive()
-			while self.serverNetwork.hasCmd:
+			while self.serverNetwork.hasCmd():
 					# put msg in a msg queue and the hoster can import and know
-				print('AUTOHOST SERVER!!!!!!!!!!!!!:'+str(self.serverNetwork.nextCmd))
+				print('AUTOHOST SERVER!!!!!!!!!!!!!:'+str(self.serverNetwork.nextCmd()))
 					

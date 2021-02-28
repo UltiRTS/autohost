@@ -27,7 +27,7 @@ class serverNetwork:
 	def receive(self):
 		newData, newAddr=self.sock.recvfrom(1024)  ##keep remaking connections when one client leaves
 		while True:   #keep reading the next msg while the connection persists
-			recvData = newData.decode("utf8").split('\n')
+			recvData = [cmd for cmd in newData.decode("utf8").split('\n') if cmd]
 			if len(recvData) > 0:
 				for i in range(len(recvData)):
 					self.cmd_queue.put(recvData[i])
