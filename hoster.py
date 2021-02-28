@@ -32,7 +32,7 @@ class Battle(threading.Thread):
 		self.engineVersion = engineVersion
 		self.roomName      = roomName
 		self.gameName      = gameName
-		self.autohostServer= AutohostServer
+		
 		self.battlePort    = battlePort
 		self.startDir      = startDir
 		self.listeners     = []
@@ -180,8 +180,8 @@ class Battle(threading.Thread):
 		self.client.sayChat('bus',self.listMap())
 		self.client.clearBuffer(self.username)
 		
-		self.autohostServer('0.0.0.0',2000+self.battlePort)
-		self.autohostServer.start
+		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort)
+		self.autohostServer.start()
 		
 		while True:
 			ctl = deliver.get()
