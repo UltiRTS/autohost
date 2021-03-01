@@ -255,3 +255,8 @@ class Battle(threading.Thread):
 							self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
 						except:
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))
+
+					if ctl['action'] =='cheat':
+						self.autohostServer.msgSendOnThread('/Cheat')
+						self.autohostServer.msgSendOnThread('/NoCost')
+						print(colored('[INFO]', 'white'), 'cheating...')

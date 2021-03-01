@@ -16,9 +16,18 @@ class AutohostServer(threading.Thread):
 		threading.Thread.__init__(self)
 		self.serverNetwork=serverNetwork()
 		self.serverNetwork.bind(host,port)
-
+		self.q = queue.Queue()
+	
+	def msgSendOnThread(self, msg):
+		self.q.put(msg)
+	
 	def run(self):
 		while True:
+			# not adding to a while loop
+			while not self.q.empty():
+				msg = self.q.get()
+				self.serverNetwork.send(msg)
+
 			self.serverNetwork.receive()
 			while self.serverNetwork.hasCmd():
 					# put msg in a msg queue and the hoster can import and know

@@ -67,6 +67,19 @@ if __name__ == "__main__":
 		else:
 			# adding the ctl to Message queue, when all ctl been got and processed, the `hoster.py` call task_done then back to `main.py` to move to next command
 			
+			if 'cheat' in msg:
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": 'cheat',
+						"caller":user,
+						"ttl":0,
+						"action":'cheat'
+					}
+					deliver.put(ctl)
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete start cmd', 'white'))
+
 			if 'map' in msg:
 				try:
 					ctl = {
@@ -137,7 +150,7 @@ if __name__ == "__main__":
 			
 			#print('main loop')
 			
-				#print ("sending："+"changeTeams "+user+" "+msg['player'])
+			#print ("sending："+"changeTeams "+user+" "+msg['player'])
 			#print('aaaa')
 			
 			#print('bbbbb')
