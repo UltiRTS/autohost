@@ -92,6 +92,19 @@ if __name__ == "__main__":
 				except:
 					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete cheat cmd', 'white'))
 
+			if 'exit' in msg:
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": 'exit',
+						"caller":user,
+						"ttl":0,
+						"action":'exit'
+					}
+					deliver.put(ctl)
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete exit cmd', 'white'))
+
 			if 'map' in msg:
 				try:
 					ctl = {

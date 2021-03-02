@@ -44,18 +44,18 @@ class serverNetwork:
 			#with open("recv.txt", 'a') as f:
 				#f.write(str(newData) + '\n')
 
-		while True:   #keep reading the next msg while the connection persists
-			try:
-				recvData = [cmd for cmd in newData.decode("utf8").split('\n') if cmd]
+		
+		try:
+			recvData = newData.decode("utf8").split('\n')
 			
-				if len(recvData) > 0:
-					for i in range(len(recvData)):
-						self.cmd_queue.put(recvData[i])
-				else:
-					print('%sconnection closed' % newAddr[0])
-			except:
-				print('unable to parse!')
-			break
+			if len(recvData) > 0:
+				for i in range(len(recvData)):
+					self.cmd_queue.put(recvData[i])
+			else:
+				print('%sconnection closed' % newAddr[0])
+		except:
+			return
+		
 		#finally:
 			#newData.close()
 	
@@ -67,5 +67,5 @@ class serverNetwork:
 
 	def disconnect(self):
 		if isInetDebug:
-			print(colored('[STCK]', 'grey'), colored('Network: Closing.', 'white'))
+			print(colored('[STCK]', 'grey'), colored('Server Network: Closing.', 'white'))
 		self.sock.close()

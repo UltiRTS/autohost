@@ -79,7 +79,11 @@ class Battle(threading.Thread):
 		self.client.startBattle()
 		self.server.launch()
 		#time.sleep(2)
+		
+	def gemStop(self):
+		self.server.killServer()
 		self.client.stopBattle()
+		print(colored('[INFO]', 'green'), colored(self.username+': hoster exiting!', 'white'))
 		
 	def getAllyTeamNum(self,players):
 		teamNum=1
@@ -183,7 +187,7 @@ class Battle(threading.Thread):
 		self.client.sayChat('bus',self.listMap())
 		self.client.clearBuffer(self.username)
 		
-		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort)
+		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort,self.hostedby,self.bid)
 		self.autohostServer.start()
 		
 		while True:
@@ -255,6 +259,9 @@ class Battle(threading.Thread):
 					if ctl["action"]=="start":
 						ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
 						self.balance(ppl,'custom',self.leaderConfig,self.teamConfig)
+						
+					if ctl["action"]=="exit":
+						self.gemStop()
 						
 					
 					if ctl["action"]=="teams":

@@ -12,11 +12,13 @@ deliver = queue.Queue()
 
 class AutohostServer(threading.Thread):
 
-	def __init__(self, host='0.0.0.0', port=4000):
+	def __init__(self, host, port,hostedBy,bid):
 		threading.Thread.__init__(self)
 		self.serverNetwork=serverNetwork()
 		self.serverNetwork.bind(host,port)
 		self.q = queue.Queue()
+		self.hostedby=hostedBy
+		self.bid=bid
 	
 	def msgSendOnThread(self, msg):
 		self.q.put(msg)
@@ -30,6 +32,15 @@ class AutohostServer(threading.Thread):
 
 			self.serverNetwork.receive()
 			while self.serverNetwork.hasCmd():
-					# put msg in a msg queue and the hoster can import and know
-				print('AUTOHOST SERVER!!!!!!!!!!!!!:'+str(self.serverNetwork.nextCmd()))
+				receivedMsg=self.serverNetwork.nextCmd()
+				#print('AUTOHOST SERVER!!!!!!!!!!!!!:'+str(self.serverNetwork.nextCmd()))
+				if 'No clients connected, shutting down server' in receivedMsg:
+					ctl = {
+						"bid": self.bid,
+						"msg": 'exit',
+						"caller":self.hostedby,
+						"ttl":0,
+						"action":'exit'
+					}
+					deliver.put(ctl)
 					
