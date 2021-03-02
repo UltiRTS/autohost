@@ -260,3 +260,8 @@ class Battle(threading.Thread):
 						self.autohostServer.msgSendOnThread('/Cheat')
 						self.autohostServer.msgSendOnThread('/NoCost')
 						print(colored('[INFO]', 'white'), 'cheating...')
+
+					if ctl['action'] == 'joinasSpec':
+						self.autohostServer.msgSendOnThread('/Something2OpenConnection')
+						self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'joinasSpec':'', 'bid': self.bid}))
+						#print(colored('[INFO]', 'white'), 'Connection allowed')
