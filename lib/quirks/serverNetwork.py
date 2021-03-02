@@ -29,20 +29,20 @@ class serverNetwork:
 		if type(command) is not str:
 			return
 
-		try:
-			self.sock.sendall(command.encode('utf8'))
-		except:
-			print(colored('[ERRO]', 'red'), 'failed to send command to engine')
+		#try:
+		self.sock.sendto(command.encode('utf8'),self.newAddr)
+		#except:
+			#print(colored('[ERRO]', 'red'), 'failed to send command to engine')
 
 	def receive(self):
-		newData, newAddr=self.sock.recvfrom(1024)  ##keep remaking connections when one client leaves
+		newData, self.newAddr=self.sock.recvfrom(1024)  ##keep remaking connections when one client leaves
 
-		if not os.path.exists("recv.txt"):
-			with open("recv.txt", 'w') as f:
-				f.write(str(newData) + '\n')
-		else:
-			with open("recv.txt", 'a') as f:
-				f.write(str(newData) + '\n')
+		#if not os.path.exists("recv.txt"):
+			#with open("recv.txt", 'w') as f:
+				#f.write(str(newData) + '\n')
+		#else:
+			#with open("recv.txt", 'a') as f:
+				#f.write(str(newData) + '\n')
 
 		while True:   #keep reading the next msg while the connection persists
 			try:
