@@ -147,6 +147,9 @@ class Battle(threading.Thread):
 			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig, 'available-maps': self.mapList, 'map':self.map_name+' '}))
 		else:
 			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'available-maps': self.mapList, 'map':self.map_name+' '}))
+	
+	def joinasSpec(self,usrName):
+		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName, 'joinasSpec':'true '}))
 		
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
@@ -204,6 +207,17 @@ class Battle(threading.Thread):
 
 			else:   #do the following if the bid matches mine
 				#print(ctl)
+				
+				if ctl['action'] == 'joinasSpec':
+						self.autohostServer.msgSendOnThread('/AddUser '+ctl['caller']+' '+'true')
+						self.joinasSpec(ctl['caller'])
+						#print(colored('[INFO]', 'white'), 'Connection allowed')
+				
+				
+				
+				
+				
+				
 				try:
 					oldVoter=' '+self.hosterMem[ctl["msg"]]
 				except:
@@ -211,6 +225,7 @@ class Battle(threading.Thread):
 				self.hosterMem[ctl["msg"]]=ctl['caller']+oldVoter
 				numofPpl=len(self.client.getUserinChat(self.bid,self.username,''))
 				print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' repeated '+str(len(set(self.hosterMem[ctl["msg"]].split())))+' times; minimum is '+ str(numofPpl/2), 'white'))
+
 				if ctl['caller']==self.hostedby or len(set(self.hosterMem[ctl["msg"]].split()))> numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl
 					
 						
@@ -261,7 +276,4 @@ class Battle(threading.Thread):
 						self.autohostServer.msgSendOnThread('/NoCost')
 						print(colored('[INFO]', 'white'), 'cheating...')
 
-					if ctl['action'] == 'joinasSpec':
-						self.autohostServer.msgSendOnThread('/Something2OpenConnection')
-						self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'joinasSpec':'', 'bid': self.bid}))
-						#print(colored('[INFO]', 'white'), 'Connection allowed')
+					
