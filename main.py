@@ -66,6 +66,18 @@ if __name__ == "__main__":
 			BtlPtr+=1
 		else:
 			# adding the ctl to Message queue, when all ctl been got and processed, the `hoster.py` call task_done then back to `main.py` to move to next command
+			if 'joinasSpec' in msg:
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": 'joinasSpec',
+						"caller":user,
+						"ttl":0,
+						"action":'joinasSpec'
+					}
+					deliver.put(ctl)
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete joinasSpec cmd', 'white'))
 			
 			if 'cheat' in msg:
 				try:
@@ -78,7 +90,7 @@ if __name__ == "__main__":
 					}
 					deliver.put(ctl)
 				except:
-					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete start cmd', 'white'))
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete cheat cmd', 'white'))
 
 			if 'map' in msg:
 				try:
