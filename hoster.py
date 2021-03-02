@@ -267,7 +267,7 @@ class Battle(threading.Thread):
 					if ctl["action"]=="teams":
 						try:
 							self.teamConfig=ctl["msg"]
-							print('teamConfig:'+str(self.teamConfig))
+							#print('teamConfig:'+str(self.teamConfig))
 							self.stateDump();
 						except:
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad changeTeams cmd!', 'white'))
@@ -281,6 +281,7 @@ class Battle(threading.Thread):
 					if ctl['action'] =='cheat':
 						self.autohostServer.msgSendOnThread('/Cheat')
 						self.autohostServer.msgSendOnThread('/NoCost')
-						print(colored('[INFO]', 'white'), 'cheating...')
+						
+						print(colored('[INFO]', 'green'), colored(self.username+': Enabling cheat for this hoster!'))
 
 					
