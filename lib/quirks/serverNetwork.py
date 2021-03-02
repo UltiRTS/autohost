@@ -1,3 +1,4 @@
+import os
 import socket
 from termcolor import colored
 from lib.quirks.hosterCTL import isInetDebug
@@ -24,8 +25,25 @@ class serverNetwork:
 		if isInetDebug:
 			print(colored('[STCK]', 'grey'), colored('SERVER Network: Connecting.', 'white'))
 		
+	def send(self, command):
+		if type(command) is not str:
+			return
+
+		try:
+			self.sock.sendall(command.encode('utf8'))
+		except:
+			print(colored('[ERRO]', 'red'), 'failed to send command to engine')
+
 	def receive(self):
 		newData, newAddr=self.sock.recvfrom(1024)  ##keep remaking connections when one client leaves
+
+		if not os.path.exists("recv.txt"):
+			with open("recv.txt", 'w') as f:
+				f.write(str(newData) + '\n')
+		else:
+			with open("recv.txt", 'a') as f:
+				f.write(str(newData) + '\n')
+
 		while True:   #keep reading the next msg while the connection persists
 			try:
 				recvData = [cmd for cmd in newData.decode("utf8").split('\n') if cmd]
