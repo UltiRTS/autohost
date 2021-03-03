@@ -149,9 +149,9 @@ class Battle(threading.Thread):
 			
 	def stateDump(self,isLoading=False):
 		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'map':self.map_name+' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'map':self.map_name+' '}))
 		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'map':self.map_name+' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'map':self.map_name+' '}))
 	
 	def joinasSpec(self,usrName):
 		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
