@@ -11,6 +11,7 @@ from serverlauncher import ServerLauncher
 import os
 import lib.cmdInterpreter
 import random
+import string 
 from lib.server import deliver
 from lib.server import AutohostServer
 
@@ -32,7 +33,7 @@ class Battle(threading.Thread):
 		self.engineVersion = engineVersion
 		self.roomName      = roomName
 		self.gameName      = gameName
-		
+		self.engineToken   = ''.join(random.choices(string.ascii_uppercase +string.digits, k = 6))
 		self.battlePort    = battlePort
 		self.startDir      = startDir
 		self.listeners     = []
@@ -148,13 +149,15 @@ class Battle(threading.Thread):
 			
 	def stateDump(self,isLoading=False):
 		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig, 'available-maps': self.mapList, 'map':self.map_name+' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'map':self.map_name+' '}))
 		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'available-maps': self.mapList, 'map':self.map_name+' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'map':self.map_name+' '}))
 	
 	def joinasSpec(self,usrName):
-		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName, 'joinasSpec':'true '}))
-		
+		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
+	
+	
+	
 	def run(self):
 		print(colored('[INFO]', 'green'), colored(self.username+': Loading unitsync.', 'white'))
 		
@@ -213,15 +216,11 @@ class Battle(threading.Thread):
 				#print(ctl)
 				
 				if ctl['action'] == 'joinasSpec':
-						self.autohostServer.msgSendOnThread('/AddUser '+ctl['caller'] + ' password' + ' 1')
-						self.joinasSpec(ctl['caller'])
+						self.autohostServer.msgSendOnThread('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
 						time.sleep(1)
+						self.joinasSpec(ctl['caller'])
+						
 						#print(colored('[INFO]', 'white'), 'Connection allowed')
-				
-				
-				
-				
-				
 				
 				try:
 					oldVoter=' '+self.hosterMem[ctl["msg"]]
