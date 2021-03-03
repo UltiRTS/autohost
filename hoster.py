@@ -213,8 +213,9 @@ class Battle(threading.Thread):
 				#print(ctl)
 				
 				if ctl['action'] == 'joinasSpec':
-						self.autohostServer.msgSendOnThread('/AddUser '+ctl['caller']+' '+'true')
+						self.autohostServer.msgSendOnThread('/AddUser '+ctl['caller'] + ' password' + ' 1')
 						self.joinasSpec(ctl['caller'])
+						time.sleep(1)
 						#print(colored('[INFO]', 'white'), 'Connection allowed')
 				
 				
