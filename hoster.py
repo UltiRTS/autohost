@@ -70,9 +70,6 @@ class Battle(threading.Thread):
 			print(colored('[WARN]', 'red'), colored(self.username+': Cannot start a game twice!', 'white'))
 			self.stateDump(True)
 			return
-		#print(self.username+" is trying to start the gem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! example msg: "+smolString)
-		#players=['Archangel',0,'Godde',1]#players, team numbers, starting from 0; an 2v1 example would be ['Archangel',0,'Xiaoming',0,'Xiaoqiang',1] 
-		#ais=[] #virtually the same as the player scheme but directs bot section behavior
 		xtraOptions['map']=self.map_name
 		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
 		numTeams=self.getAllyTeamNum(players)
@@ -137,21 +134,18 @@ class Battle(threading.Thread):
 				except:
 					print(colored('[INFO]', 'green'), colored(self.username+': Player '+player+" has unassigned team!", 'white'))
 					
-			for team in leaderConfig:             #for every leader, find the player in the ppl matrix, and set their leader status to true
-				for player in ppl:
-					#print('currently in team '+str(team))
-					#print('currently setting up'+player+' in team '+str(ppl[player]['team']))
-					if leaderConfig[team]==player:
-						ppl[player]['isLeader']=True
+			## TODO: test
+			ppl[leaderConfig]['isLeader'] = True
 						
 			print('player custom config'+str(ppl))
 			self.gemStart(ppl)
 			
 	def stateDump(self,isLoading=False):
+		
 		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'map':self.map_name+' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name+' '}))
 		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'map':self.map_name+' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name+' '}))
 	
 	def joinasSpec(self,usrName):
 		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
@@ -182,7 +176,8 @@ class Battle(threading.Thread):
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		#client.clearBuffer(self.username)
 		self.teamConfig=''
-		self.leaderConfig={}
+		#OLD: self.leaderConfig={}
+		self.leaderConfig=""
 		self.aiList=''
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
@@ -268,13 +263,15 @@ class Battle(threading.Thread):
 						try:
 							self.teamConfig=ctl["msg"]
 							#print('teamConfig:'+str(self.teamConfig))
-							self.stateDump();
-						except:
+							self.stateDump()
+						except Exception as e:
+							print(e)
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad changeTeams cmd!', 'white'))
 					
 					if ctl["action"]=="leader":
 						try:
-							self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
+							# OLD: self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
+							self.leaderConfig = ctl["msg"].split()[2]
 						except:
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))
 
