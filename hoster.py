@@ -95,7 +95,7 @@ class Battle(threading.Thread):
 		self.mapList = ' '.join(self.mapList)
 		print(colored('[INFO]', 'green'), colored(self.username+': Listing map with cmd:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': self.mapList+" "}), 'white'))
 		
-		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'join':self.bid,'available-maps': self.mapList+" "}))
+		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'join':self.bid,'available-maps': self.mapList, 'hoster': self.hostedby}))
 	
 	def balance(self,ppl,gemType,leaderConfig,preDefined="false"):
 		# check if started
@@ -135,7 +135,12 @@ class Battle(threading.Thread):
 					print(colored('[INFO]', 'green'), colored(self.username+': Player '+player+" has unassigned team!", 'white'))
 					
 			## TODO: test
-			ppl[leaderConfig]['isLeader'] = True
+			if leaderConfig == '':
+				leader = list(ppl.keys())[0]
+				ppl[leader]['isLeader'] = True
+			else:
+				ppl[leaderConfig]['isLeader'] = True
+				
 						
 			print('player custom config'+str(ppl))
 			self.gemStart(ppl)
@@ -143,13 +148,15 @@ class Battle(threading.Thread):
 	def stateDump(self,isLoading=False):
 		
 		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name+' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby) + ' '}))
 		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name+' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby) + ' '}))
 	
 	def joinasSpec(self,usrName):
 		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
 	
+	def rejoin(self, usrName):
+		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
 	
 	
 	def run(self):
@@ -182,7 +189,7 @@ class Battle(threading.Thread):
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
-		self.client.sayChat('bus',self.listMap())
+		self.client.sayChat('bus', self.listMap())
 		self.client.clearBuffer(self.username)
 		
 		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort,self.hostedby,self.bid)
@@ -211,10 +218,12 @@ class Battle(threading.Thread):
 				#print(ctl)
 				
 				if ctl['action'] == 'joinasSpec':
+					if ctl['caller'] in [ppl.strip() for ppl in self.teamConfig.split(' ') ]:
+						self.rejoin(ctl['caller'])
+					else:
 						self.autohostServer.msgSendOnThread('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
 						time.sleep(1)
 						self.joinasSpec(ctl['caller'])
-						
 						#print(colored('[INFO]', 'white'), 'Connection allowed')
 				
 				try:
@@ -272,6 +281,7 @@ class Battle(threading.Thread):
 						try:
 							# OLD: self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
 							self.leaderConfig = ctl["msg"].split()[2]
+							self.stateDump()
 						except:
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))
 
