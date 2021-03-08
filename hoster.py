@@ -280,7 +280,7 @@ class Battle(threading.Thread):
 					if ctl["action"]=="leader":
 						try:
 							# OLD: self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
-							self.leaderConfig = ctl["msg"].split()[2]
+							self.leaderConfig = ctl["msg"].split()[1]
 							self.stateDump()
 						except:
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))
