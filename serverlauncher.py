@@ -25,18 +25,23 @@ class ServerLauncher():
 		self.numTeams=numTeams
 		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 
+		with open('script.info', 'w') as f:
+			f.write(str(self.players) + '\n')
+			f.write(str(self.numTeams) + '\n')
+
 		game = OptionFactory('GAME')
 
-	##############player gen####################################
 
 		game.addFromDict({
 			'Mapname':  str(self.unitSync.syn2map(self.cmds['map'])['mapName'].replace('🦔', ' '))
 			})
 
 
+	##############player gen####################################
 		for player in self.players:
 			if self.players[player]['isAI']==True:
 				continue
+
 
 			pl = OptionFactory("PLAYER" + str(self.players[player]['index']))
 			pl.addFromDict({
@@ -50,7 +55,17 @@ class ServerLauncher():
 
 			game.addFromOptionInstance(pl)
 
+
 	##############AI gen############################################
+		defaultLeader = None
+		for player in self.players:
+			if self.players[player]['isLeader']:
+				defaultLeader = self.players[player]['index']
+				break
+		
+		if defaultLeader is None:
+			defaultLeader = 0
+			
 		for player in self.players:
 			if self.players[player]['isAI']==True:
 				ai = OptionFactory("AI" + str(self.players[player]['index']))
@@ -58,26 +73,49 @@ class ServerLauncher():
 					'ShortName': 'CircuitAI',
 					'Name': 'CircuitAI',
 					'Team': self.players[player]['index'],
-					'Host': 0,
+					'Host': defaultLeader,
 				})
 				game.addFromOptionInstance(ai)
 
+		
+
+		
+
      ############player gen###############################################
 		for player in self.players:     #for every single player, do this:
-			leaderIndex=0
-			for possibleLeader in self.players:
-				if self.players[possibleLeader]['isLeader']==True and self.players[possibleLeader]['team']==self.players[player]['team']:    #loop through the config, find ones that's designated as leader AND in the same team as the player that's being configed ATM
-					leaderIndex=self.players[possibleLeader]['index']
+#			leaderIndex=0
+#			for possibleLeader in self.players:
+#				if self.players[possibleLeader]['isLeader']==True and self.players[possibleLeader]['team']==self.players[player]['team']:    #loop through the config, find ones that's designated as leader AND in the same team as the player that's being configed ATM
+#					leaderIndex=self.players[possibleLeader]['index']
+#			if self.players[player]['isAI']==True:
+#				continue
 			
-			team = OptionFactory("TEAM" + str(self.teamPtr))
-			team.addFromDict({
-				'AllyTeam': self.players[player]['team'],
-				'Side':'Arm',
-				'Handicap':0,
-				'TeamLeader':leaderIndex,
-			})
-			game.addFromOptionInstance(team)
+			if self.players[player]['isAI'] == True:
+				team = OptionFactory("TEAM" + str(self.teamPtr))
+				team.addFromDict({
+					'AllyTeam': self.players[player]['team'],
+					'Side':'Arm',
+					'Handicap':0,
+					'TeamLeader': defaultLeader
+				})
+				game.addFromOptionInstance(team)
+			else:
+				team = OptionFactory("TEAM" + str(self.teamPtr))
+				team.addFromDict({
+					'AllyTeam': self.players[player]['team'],
+					'Side':'Arm',
+					'Handicap':0,
+					# The player itself is leader
+					'TeamLeader': self.players[player]['index']
+				})
+				game.addFromOptionInstance(team)
+				
 
+#			if self.players[player]['isAI']==True:
+#				team.addFromDict({'TeamLeader': leaderIndex})
+#			else:
+#				team.addFromDict({'TeamLeader': self.players[player]['index']})
+				
 			self.teamPtr+=1;
 			
 		self.teamPtr=0
