@@ -66,6 +66,19 @@ if __name__ == "__main__":
 			BtlPtr+=1
 		else:
 			# adding the ctl to Message queue, when all ctl been got and processed, the `hoster.py` call task_done then back to `main.py` to move to next command
+			if 'comments' in msg:
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": msg['comments'],
+						"caller":user,
+						"ttl":0,
+						"action":'comments'
+					}
+					deliver.put(ctl)
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete comments cmd', 'white'))
+
 			if 'joinasSpec' in msg:
 				try:
 					ctl = {
