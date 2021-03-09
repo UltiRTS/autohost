@@ -36,7 +36,7 @@ class Battle(threading.Thread):
 		self.engineToken   = ''.join(random.choices(string.ascii_uppercase +string.digits, k = 6))
 		self.battlePort    = battlePort
 		self.startDir      = startDir
-		self.listeners     = []
+		
 		self.client        = Client(self.battlePort,self.startDir)
 		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 		self.isLaunched= False;
@@ -97,7 +97,7 @@ class Battle(threading.Thread):
 		
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'join':self.bid,'available-maps': self.mapList, 'hoster': self.hostedby}))
 	
-	def balance(self,ppl,gemType,leaderConfig,preDefined="false"):
+	def balance(self,gemType,leaderConfig,preDefined="false"):
 		# check if started
 		
 		
@@ -106,20 +106,20 @@ class Battle(threading.Thread):
 			self.gemStart()
 			
 		elif gemType=="teams":
-			for player in ppl:
+			for player in self.ppl:
 				
-				if i>=len(ppl)/2:
+				if i>=len(self.ppl)/2:
 					#print('aaa')
-					ppl[player]['team']=1
+					self.ppl[player]['team']=1
 					#ppl.values()[i]['team']=0
 				else:
 					#print('bbb')
-					ppl[player]['team']=0
+					self.ppl[player]['team']=0
 					#player['team']=1
 					#ppl.values()[i]['team']=1
 				i+=1
-			print('player config'+str(ppl))
-			self.gemStart(ppl,2)
+			print('player config'+str(self.ppl))
+			self.gemStart(2)
 			
 		elif gemType=="pve":
 			self.gemStart()
@@ -127,23 +127,23 @@ class Battle(threading.Thread):
 		elif gemType=="custom":
 			result=self.letter2Teams(preDefined)
 			print('result:'+ str(result))
-			print('ppl: '+str(ppl))
-			for player in ppl:                      #apply team designation to ppl matrix
+			print('ppl: '+str(self.ppl))
+			for player in self.ppl:                      #apply team designation to ppl matrix
 				try:
-					ppl[player]['team']=result[player]
+					self.ppl[player]['team']=result[player]
 				except:
 					print(colored('[INFO]', 'green'), colored(self.username+': Player '+player+" has unassigned team!", 'white'))
 					
 			## TODO: test
 			if leaderConfig == '':
-				leader = list(ppl.keys())[0]
-				ppl[leader]['isLeader'] = True
+				leader = list(self.ppl.keys())[0]
+				self.ppl[leader]['isLeader'] = True
 			else:
-				ppl[leaderConfig]['isLeader'] = True
+				self.ppl[leaderConfig]['isLeader'] = True
 				
 						
-			print('player custom config'+str(ppl))
-			self.gemStart(ppl)
+			print('player custom config'+str(self.ppl))
+			self.gemStart()
 			
 	def stateDump(self,isLoading=False):
 		
@@ -189,7 +189,7 @@ class Battle(threading.Thread):
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
-		self.client.sayChat('bus', self.listMap())
+		self.client.sayChat('bus', self.listMap()+" ")
 		self.client.clearBuffer(self.username)
 		
 		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort,self.hostedby,self.bid)
@@ -217,14 +217,23 @@ class Battle(threading.Thread):
 			else:   #do the following if the bid matches mine
 				#print(ctl)
 				
-				if ctl['action'] == 'joinasSpec':
-					if ctl['caller'] in [ppl.strip() for ppl in self.teamConfig.split(' ') ]:
+				if ctl['action'] == 'joinasSpec':     ##everyone commands, commands that everyone can run
+					if ctl['caller'] in [self.ppl.strip() for self.ppl in self.teamConfig.split(' ') ]:
 						self.rejoin(ctl['caller'])
 					else:
 						self.autohostServer.msgSendOnThread('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
 						time.sleep(1)
 						self.joinasSpec(ctl['caller'])
 						#print(colored('[INFO]', 'white'), 'Connection allowed')
+				
+				if ctl['caller']==self.hostedby: #(non pollable&host only commands)
+					
+					if ctl["action"]=="left":
+						self.client.exit()
+						self.autohost.free_autohost(self.username)
+						# exit thread
+						return
+				
 				
 				try:
 					oldVoter=' '+self.hosterMem[ctl["msg"]]
@@ -234,16 +243,8 @@ class Battle(threading.Thread):
 				numofPpl=len(self.client.getUserinChat(self.bid,self.username,''))
 				print(colored('[INFO]', 'green'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' repeated '+str(len(set(self.hosterMem[ctl["msg"]].split())))+' times; minimum is '+ str(numofPpl/2), 'white'))
 
-				if ctl['caller']==self.hostedby or len(set(self.hosterMem[ctl["msg"]].split()))> numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl
-					
-						
-					
+				if ctl['caller']==self.hostedby or len(set(self.hosterMem[ctl["msg"]].split()))> numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl(pollable &host only commands)
 					self.hosterMem[ctl["msg"]]=''
-					if ctl["action"]=="left":
-						self.client.exit()
-						self.autohost.free_autohost(self.username)
-						# exit thread
-						return
 					
 					if ctl["action"]=="chmap":
 						try:
@@ -261,8 +262,8 @@ class Battle(threading.Thread):
 							
 
 					if ctl["action"]=="start":
-						ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
-						self.balance(ppl,'custom',self.leaderConfig,self.teamConfig)
+						self.ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
+						self.balance('custom',self.leaderConfig,self.teamConfig)
 						
 					if ctl["action"]=="exit":
 						self.gemStop()
@@ -290,5 +291,3 @@ class Battle(threading.Thread):
 						self.autohostServer.msgSendOnThread('/NoCost')
 						
 						print(colored('[INFO]', 'green'), colored(self.username+': Enabling cheat for this hoster!'))
-
-					
