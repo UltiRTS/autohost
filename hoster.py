@@ -148,9 +148,9 @@ class Battle(threading.Thread):
 	def stateDump(self,isLoading=False):
 		
 		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby) + ' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment + ' '}))
 		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby) + ' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment + ' '}))
 	
 	def joinasSpec(self,usrName):
 		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
@@ -194,6 +194,8 @@ class Battle(threading.Thread):
 		
 		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort,self.hostedby,self.bid)
 		self.autohostServer.start()
+
+		self.comment = ""
 		
 		while True:
 			ctl = deliver.get()
@@ -291,3 +293,7 @@ class Battle(threading.Thread):
 						self.autohostServer.msgSendOnThread('/NoCost')
 						
 						print(colored('[INFO]', 'green'), colored(self.username+': Enabling cheat for this hoster!'))
+
+					if ctl['action'] =='comments':
+						self.comment = ctl['msg']
+						self.stateDump()
