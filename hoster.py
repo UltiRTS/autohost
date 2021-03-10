@@ -65,15 +65,15 @@ class Battle(threading.Thread):
 		print("l2teams:"+str(players))    #should return something like {'Autohost_0': 0, 'GPT_2': 0, 'GPT_1': 0, 'Teresa': 0, 'GPT_3': 1}
 		return(players)
 	
-	def gemStart(self, players,xtraOptions={}):
+	def gemStart(self, xtraOptions={}):
 		if self.server.engineAlive():
 			print(colored('[WARN]', 'red'), colored(self.username+': Cannot start a game twice!', 'white'))
 			self.stateDump(True)
 			return
 		xtraOptions['map']=self.map_name
 		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
-		numTeams=self.getAllyTeamNum(players)
-		self.server.scriptGen(self.startDir,self.battlePort,players,xtraOptions,self.username,numTeams) #generate the script
+		numTeams=self.getAllyTeamNum(self.ppl)
+		self.server.scriptGen(self.startDir,self.battlePort,self.ppl,xtraOptions,self.username,numTeams) #generate the script
 		self.client.startBattle()
 		self.server.launch()
 		#time.sleep(2)
@@ -148,9 +148,9 @@ class Battle(threading.Thread):
 	def stateDump(self,isLoading=False):
 		
 		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment + ' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby) + ' '}))
 		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment + ' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby) + ' '}))
 	
 	def joinasSpec(self,usrName):
 		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
@@ -194,8 +194,6 @@ class Battle(threading.Thread):
 		
 		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort,self.hostedby,self.bid)
 		self.autohostServer.start()
-
-		self.comment = ""
 		
 		while True:
 			ctl = deliver.get()
@@ -293,7 +291,3 @@ class Battle(threading.Thread):
 						self.autohostServer.msgSendOnThread('/NoCost')
 						
 						print(colored('[INFO]', 'green'), colored(self.username+': Enabling cheat for this hoster!'))
-
-					if ctl['action'] =='comments':
-						self.comment = ctl['msg']
-						self.stateDump()
