@@ -25,9 +25,7 @@ class ServerLauncher():
 		self.numTeams=numTeams
 		self.unitSync = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 
-		with open('script.info', 'w') as f:
-			f.write(str(self.players) + '\n')
-			f.write(str(self.numTeams) + '\n')
+		
 
 		game = OptionFactory('GAME')
 

@@ -20,7 +20,7 @@ class Battle(threading.Thread):
 
 	
 
-	def __init__(self,userName, startDir, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort):
+	def __init__(self,userName, startDir, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort,autohostCTLClient):
 		threading.Thread.__init__(self)
 		self.autohost = autohostFactory;
 		self.username = autohostFactory.new_autohost()
@@ -36,7 +36,7 @@ class Battle(threading.Thread):
 		self.engineToken   = ''.join(random.choices(string.ascii_uppercase +string.digits, k = 6))
 		self.battlePort    = battlePort
 		self.startDir      = startDir
-		
+		self.autohostCTL=autohostCTLClient
 		self.client        = Client(self.battlePort,self.startDir)
 		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
 		self.isLaunched= False;
@@ -177,7 +177,7 @@ class Battle(threading.Thread):
 		
 		_thread.start_new_thread( self.client.keepalive,(self.username,))
 		self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.map_name,  self.roomName, self.gameName)
-
+		self.autohostCTL.joinChat(self.bid)
 
 		#hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
@@ -204,9 +204,9 @@ class Battle(threading.Thread):
 				ctl["ttl"]+=1
 				print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' does not belong to this autohost', 'white'))
 				
-				if ctl["ttl"]<=20:
+				if ctl["ttl"]<=200:
 					deliver.put(ctl)
-					time.sleep(0.1)
+					time.sleep(0.01)
 					continue
 				else:
 					print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' disposed of', 'white'))
@@ -221,11 +221,18 @@ class Battle(threading.Thread):
 					if ctl['caller'] in [self.ppl.strip() for self.ppl in self.teamConfig.split(' ') ]:
 						self.rejoin(ctl['caller'])
 					else:
-						self.autohostServer.msgSendOnThread('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
+						self.autohostServer.autohostInterfaceSayChat('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
 						time.sleep(1)
 						self.joinasSpec(ctl['caller'])
 						#print(colored('[INFO]', 'white'), 'Connection allowed')
-				
+						
+						
+				if ctl['action'] == 'forward2AutohostInterface':     ##everyone commands, commands that everyone can run
+						self.autohostServer.autohostInterfaceSayChat('/ChatAll '+ctl['caller'] + '$ '+ctl['msg'])
+						
+				if ctl['action'] == 'sayBtlRoom': 		
+					self.autohostCTL.sayChat(str(self.bid),ctl['msg'])
+					
 				if ctl['caller']==self.hostedby: #(non pollable&host only commands)
 					
 					if ctl["action"]=="left":
@@ -287,7 +294,7 @@ class Battle(threading.Thread):
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))
 
 					if ctl['action'] =='cheat':
-						self.autohostServer.msgSendOnThread('/Cheat')
-						self.autohostServer.msgSendOnThread('/NoCost')
+						self.autohostServer.autohostInterfaceSayChat('/Cheat')
+						self.autohostServer.autohostInterfaceSayChat('/NoCost')
 						
 						print(colored('[INFO]', 'green'), colored(self.username+': Enabling cheat for this hoster!'))

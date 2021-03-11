@@ -29,11 +29,10 @@ class Client():
 				#self.network.receive()
 				if 'sysctl' in chatBuffer:
 					return chatBuffer
-				#else:
-					#print(chatBuffer+"Probably not a cmd line!")
-		return "Probably not a cmd line!"
+				elif 'SAID' in chatBuffer:
+					return 'msgRelay '+chatBuffer
 
-
+	
 	def login(self, username, password, local_ip='*', cpu=0):
 		password = b64encode(md5(password).digest()).decode('utf8')
 		command = 'LOGIN %s %s %i %s' % (username, password, cpu, local_ip)

@@ -1,5 +1,3 @@
- 
-import socket
 import threading
 from termcolor import colored
 from lib.quirks.serverNetwork import serverNetwork
@@ -20,7 +18,7 @@ class AutohostServer(threading.Thread):
 		self.hostedby=hostedBy
 		self.bid=bid
 	
-	def msgSendOnThread(self, msg):
+	def autohostInterfaceSayChat(self, msg):
 		self.q.put(msg)
 	
 	def run(self):
@@ -41,6 +39,16 @@ class AutohostServer(threading.Thread):
 						"caller":self.hostedby,
 						"ttl":0,
 						"action":'exit'
+					}
+					deliver.put(ctl)
+				
+				else:
+					ctl = {
+						"bid": self.bid,
+						"msg": receivedMsg,
+						"caller":'autohost',
+						"ttl":0,
+						"action":'sayBtlRoom'
 					}
 					deliver.put(ctl)
 					
