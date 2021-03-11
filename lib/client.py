@@ -114,6 +114,7 @@ class Client():
 							#print('self acc: '+selAccount)
 							 
 							response.remove(selAccount)
+							response.remove('Autohost_CTL')
 							response=response[2:]
 							#print (response)
 							#print('aaaa')
