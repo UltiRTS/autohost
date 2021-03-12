@@ -29,7 +29,7 @@ class Client():
 				#self.network.receive()
 				if 'sysctl' in chatBuffer:
 					return chatBuffer
-				elif 'SAID' in chatBuffer:
+				elif 'SAID' in chatBuffer and 'Autohost' not in chatBuffer:
 					return 'msgRelay '+chatBuffer
 
 	

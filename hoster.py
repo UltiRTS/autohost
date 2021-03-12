@@ -135,12 +135,11 @@ class Battle(threading.Thread):
 					print(colored('[INFO]', 'green'), colored(self.username+': Player '+player+" has unassigned team!", 'white'))
 					
 			## TODO: test
-			if leaderConfig == '':
+			try:
+				self.ppl[leaderConfig]['isLeader'] = True
+			except:
 				leader = list(self.ppl.keys())[0]
 				self.ppl[leader]['isLeader'] = True
-			else:
-				self.ppl[leaderConfig]['isLeader'] = True
-				
 						
 			print('player custom config'+str(self.ppl))
 			self.gemStart()
@@ -202,11 +201,11 @@ class Battle(threading.Thread):
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				#deliver.task_done()
 				ctl["ttl"]+=1
-				print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' does not belong to this autohost', 'white'))
+				print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' marked as '+ctl["bid"]+' does not belong to this autohost'+self.bid, 'white'))
 				
-				if ctl["ttl"]<=200:
+				if ctl["ttl"]<=50:
 					deliver.put(ctl)
-					time.sleep(0.01)
+					time.sleep(0.1)
 					continue
 				else:
 					print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' disposed of', 'white'))

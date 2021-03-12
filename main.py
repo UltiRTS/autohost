@@ -66,6 +66,7 @@ if __name__ == "__main__":
 						"action":'forward2AutohostInterface'
 					}
 			deliver.put(ctl)
+			print('msgRelay sending'+str(ctl))
 			continue
 		#print(servermsg)
 		user=servermsg.split()[2]
