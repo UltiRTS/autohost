@@ -46,7 +46,7 @@ class AutohostServer(threading.Thread):
 					ctl = {
 						"bid": self.bid,
 						"msg": receivedMsg,
-						"caller":'autohost',
+						"caller":'Autohost',
 						"ttl":0,
 						"action":'sayBtlRoom'
 					}

@@ -219,18 +219,22 @@ class Battle(threading.Thread):
 				if ctl['action'] == 'joinasSpec':     ##everyone commands, commands that everyone can run
 					if ctl['caller'] in [self.ppl.strip() for self.ppl in self.teamConfig.split(' ') ]:
 						self.rejoin(ctl['caller'])
+						
 					else:
 						self.autohostServer.autohostInterfaceSayChat('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
 						time.sleep(1)
 						self.joinasSpec(ctl['caller'])
+					continue
 						#print(colored('[INFO]', 'white'), 'Connection allowed')
 						
 						
 				if ctl['action'] == 'forward2AutohostInterface':     ##everyone commands, commands that everyone can run
-						self.autohostServer.autohostInterfaceSayChat('/ChatAll '+ctl['caller'] + '$ '+ctl['msg'])
+					self.autohostServer.autohostInterfaceSayChat('/ChatAll '+ctl['caller'] + '$ '+ctl['msg'])
+					continue
 						
 				if ctl['action'] == 'sayBtlRoom': 		
 					self.autohostCTL.sayChat(str(self.bid),ctl['msg'])
+					continue
 					
 				if ctl['caller']==self.hostedby: #(non pollable&host only commands)
 					
