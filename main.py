@@ -93,6 +93,19 @@ if __name__ == "__main__":
 					deliver.put(ctl)
 				except:
 					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete joinasSpec cmd', 'white'))
+
+			if 'comment' in msg:
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": msg['comment'],
+						"caller":user,
+						"ttl":0,
+						"action":'comment'
+					}
+					deliver.put(ctl)
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete comment cmd', 'white'))
 			
 			if 'cheat' in msg:
 				try:

@@ -147,9 +147,9 @@ class Battle(threading.Thread):
 	def stateDump(self,isLoading=False):
 		
 		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby) + ' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment + ' '}))
 		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby) + ' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment + ' '}))
 	
 	def joinasSpec(self,usrName):
 		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
@@ -185,6 +185,8 @@ class Battle(threading.Thread):
 		#OLD: self.leaderConfig={}
 		self.leaderConfig=""
 		self.aiList=''
+		self.comment = ''	
+
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		#client.clearBuffer(self.username)
@@ -229,7 +231,8 @@ class Battle(threading.Thread):
 						
 						
 				if ctl['action'] == 'forward2AutohostInterface':     ##everyone commands, commands that everyone can run
-					self.autohostServer.autohostInterfaceSayChat('/ChatAll '+ctl['caller'] + '$ '+ctl['msg'])
+					self.autohostServer.autohostInterfaceSayChat('/ChatAll')
+					self.autohostServer.autohostInterfaceSayChat(ctl['caller'] + '$ ' + ctl['msg'])
 					continue
 						
 				if ctl['action'] == 'sayBtlRoom': 		
@@ -256,6 +259,10 @@ class Battle(threading.Thread):
 				if ctl['caller']==self.hostedby or len(set(self.hosterMem[ctl["msg"]].split()))> numofPpl/2:   #do the following if the bid matches mine and is from the one who hosted the btl(pollable &host only commands)
 					self.hosterMem[ctl["msg"]]=''
 					
+					if ctl['action'] == 'comment':
+						self.comment = ctl['msg']
+						self.stateDump()
+
 					if ctl["action"]=="chmap":
 						try:
 							self.map_file=ctl["msg"].split()[0]
