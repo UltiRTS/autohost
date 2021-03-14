@@ -45,16 +45,16 @@ class serverNetwork:
 				#f.write(str(newData) + '\n')
 
 		
-		try:
-			recvData = newData.decode("utf8").split('\n')
-			
-			if len(recvData) > 0:
-				for i in range(len(recvData)):
-					self.cmd_queue.put(recvData[i])
-			else:
-				print('%sconnection closed' % newAddr[0])
-		except:
-			return
+		#try:
+		
+		recvData=repr(newData).split('\n')
+		if len(recvData) > 0:
+			for i in range(len(recvData)):
+				self.cmd_queue.put(recvData[i])
+		else:
+			print('%sconnection closed' % newAddr[0])
+		#except:
+			#return
 		
 		#finally:
 			#newData.close()
