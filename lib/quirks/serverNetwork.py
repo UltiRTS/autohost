@@ -37,12 +37,12 @@ class serverNetwork:
 	def receive(self):
 		newData, self.newAddr=self.sock.recvfrom(1024)  ##keep remaking connections when one client leaves
 
-		#if not os.path.exists("recv.txt"):
-			#with open("recv.txt", 'w') as f:
-				#f.write(str(newData) + '\n')
-		#else:
-			#with open("recv.txt", 'a') as f:
-				#f.write(str(newData) + '\n')
+#		if not os.path.exists("recv.txt"):
+#			with open("recv.txt", 'w') as f:
+#				f.write(str(newData) + '\n')
+#		else:
+#			with open("recv.txt", 'a') as f:
+#				f.write(str(newData) + '\n')
 
 		
 		#try:
