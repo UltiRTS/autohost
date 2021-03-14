@@ -57,10 +57,10 @@ if __name__ == "__main__":
 		if servermsg.startswith('msgRelay'):    #this shouldnt go into the interpreter!!
 			bid=servermsg.split()[2]
 			user=servermsg.split()[3]
-			msg=str(servermsg.split()[4:])
+			msg=servermsg.split()[4:]
 			ctl = {
 						"bid": bid,
-						"msg": msg,
+						"msg": ' '.join(msg),
 						"caller":user,
 						"ttl":0,
 						"action":'forward2AutohostInterface'
