@@ -107,6 +107,7 @@ class Client():
 			while self.network.hasCmd():
 				#print('ccc')
 				response=self.network.nextCmd().split()
+				#print(colored('[INFO]', 'cyan'), response)
 				try:
 					if 'CLIENTS' in response[0]:
 						if channel in response[1]:
@@ -119,7 +120,7 @@ class Client():
 							#print (response)
 							#print('aaaa')
 							for i in response:
-								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False}
+								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False, 'isChicken': False}
 								#print('bbb')
 								#print (playerMatrix[i])
 								pindex+=1
@@ -127,8 +128,12 @@ class Client():
 						
 							for j in teamConf.split():
 								if j.startswith('GPT'):
-									playerMatrix[j]={'team':0,'muted':0,'isAI':True,'index':pindex,'isLeader':False}
+									playerMatrix[j]={'team':0,'muted':0,'isAI':True,'index':pindex,'isLeader':False, 'isChicken': False}
 									pindex+=1
+								elif j.startswith('Chicken'):
+									playerMatrix[j]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False, 'isChicken': True}
+									pindex+=1
+
 							return playerMatrix
 				except:
 					continue
