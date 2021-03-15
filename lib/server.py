@@ -41,6 +41,13 @@ class AutohostServer(threading.Thread):
 					deliver.put(ctl)
 				
 				else:
+					# in game chat message
+					if r"\r\x00\xfe" in receivedMsg:
+						#receivedMsg = receivedMsg[12:-1]
+						print(colored('[INFO]', 'cyan'), "received: ", receivedMsg)
+					else:
+						continue
+						
 					ctl = {
 						"bid": self.bid,
 						"msg": receivedMsg,
