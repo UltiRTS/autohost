@@ -144,6 +144,22 @@ class Battle(threading.Thread):
 			print('player custom config'+str(self.ppl))
 			self.gemStart()
 			
+	def parseIngameMsg(self, msg):
+		toHandle = msg.split(r'\r')[1]
+		userIdStr = toHandle[2:4]
+		userId = int(userIdStr, 16)
+		message = toHandle[8:-1]
+		
+		chatUser = None
+		for user, uInfo in self.ppl.items():
+			if uInfo['index'] == userId:
+				chatUser = user
+				break
+
+		print("userid: ", userId, " User: ", chatUser)
+
+		return user, message
+
 	def stateDump(self,isLoading=False):
 		
 		if isLoading:
@@ -236,7 +252,8 @@ class Battle(threading.Thread):
 					continue
 						
 				if ctl['action'] == 'sayBtlRoom': 		
-					self.autohostCTL.sayChat(str(self.bid),ctl['msg'])
+					user, message = self.parseIngameMsg(ctl['msg'])
+					self.autohostCTL.sayChat(str(self.bid),user + " said: " + message)
 					continue
 					
 				if ctl['caller']==self.hostedby: #(non pollable&host only commands)
@@ -280,6 +297,7 @@ class Battle(threading.Thread):
 
 					if ctl["action"]=="start":
 						self.ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
+						#print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
 						self.balance('custom',self.leaderConfig,self.teamConfig)
 						
 					if ctl["action"]=="exit":
