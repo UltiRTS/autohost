@@ -62,7 +62,7 @@ class Battle(threading.Thread):
 			for player in cmdDict[key]:
 				players[player]=i
 			i=i+1
-		print("l2teams:"+str(players))    #should return something like {'Autohost_0': 0, 'GPT_2': 0, 'GPT_1': 0, 'Teresa': 0, 'GPT_3': 1}
+		#print("l2teams:"+str(players))    #should return something like {'Autohost_0': 0, 'GPT_2': 0, 'GPT_1': 0, 'Teresa': 0, 'GPT_3': 1}
 		return(players)
 	
 	def gemStart(self, xtraOptions={}):
@@ -297,7 +297,7 @@ class Battle(threading.Thread):
 
 					if ctl["action"]=="start":
 						self.ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
-						#print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
+						print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
 						self.balance('custom',self.leaderConfig,self.teamConfig)
 						
 					if ctl["action"]=="exit":

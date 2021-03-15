@@ -74,6 +74,16 @@ class ServerLauncher():
 					'Host': defaultLeader,
 				})
 				game.addFromOptionInstance(ai)
+			elif self.players[player]['isChicken']==True:
+				ai = OptionFactory("AI" + str(self.players[player]['index']))
+				ai.addFromDict({
+					'ShortName': 'Chicken: Suicidal',
+					'Name': 'AI: Chicken: Suicidal',
+					'Team': self.players[player]['index'],
+					'Host': defaultLeader,
+				})
+				game.addFromOptionInstance(ai)
+				
 
 		
 
