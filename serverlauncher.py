@@ -10,11 +10,6 @@ class ServerLauncher():
 		self.teamPtr=0
 		
 		
-		
-		
-
-		# using subprocess to invoke spring engine
-		
 	
 	def scriptGen(self,startDir,battlePort,players,cmds,username,numTeams):
 		self.startDir=startDir

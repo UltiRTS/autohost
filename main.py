@@ -1,9 +1,7 @@
 #from lib.message_queue import Deliver
-import time
 import os
 from lib.client import Client
 import _thread
-import threading
 from multiprocessing import Queue
 from hoster import Battle #ability to open battles
 from lib.quirks.autohost_factory import AutohostFactory #ability to change credential to host battles
@@ -214,6 +212,5 @@ if __name__ == "__main__":
 	#time.sleep(1)
 	#battle2.start()
 	
-	print(colored('[INFO]', 'green'), colored('Main: Halting.', 'white'))
-	time.sleep(10)
+
 

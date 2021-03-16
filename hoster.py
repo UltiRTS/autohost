@@ -1,14 +1,9 @@
 import time
 import _thread
-import threading
-#from multiprocessing import Queue
 from lib.client import Client
 from lib.quirks.unitSync import UnitSync
 from termcolor import colored
 from serverlauncher import ServerLauncher
-#from lib.quirks.hosterCTL import hosterCTL
-#import lib.quirks.hosterCTL
-import os
 import lib.cmdInterpreter
 import random
 import string 
@@ -17,8 +12,6 @@ from lib.server import AutohostServer
 
 
 class Battle(threading.Thread):
-
-	
 
 	def __init__(self,userName, startDir, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort,autohostCTLClient):
 		threading.Thread.__init__(self)
@@ -62,7 +55,7 @@ class Battle(threading.Thread):
 			for player in cmdDict[key]:
 				players[player]=i
 			i=i+1
-		#print("l2teams:"+str(players))    #should return something like {'Autohost_0': 0, 'GPT_2': 0, 'GPT_1': 0, 'Teresa': 0, 'GPT_3': 1}
+		
 		return(players)
 	
 	def gemStart(self, xtraOptions={}):
@@ -71,12 +64,12 @@ class Battle(threading.Thread):
 			self.stateDump(True)
 			return
 		xtraOptions['map']=self.map_name
-		#######THE ABOVE ARGUMENTS ARE SUPPOSED TO BE RETRIEVED FROM THE CHAT#######
+		
 		numTeams=self.getAllyTeamNum(self.ppl)
 		self.server.scriptGen(self.startDir,self.battlePort,self.ppl,xtraOptions,self.username,numTeams) #generate the script
 		self.client.startBattle()
 		self.server.launch()
-		#time.sleep(2)
+		
 		
 	def gemStop(self):
 		self.server.killServer()
@@ -98,8 +91,6 @@ class Battle(threading.Thread):
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'join':self.bid,'available-maps': self.mapList, 'hoster': self.hostedby}))
 	
 	def balance(self,gemType,leaderConfig,preDefined="false"):
-		# check if started
-		
 		
 		i=0
 		if gemType=='fafafa':
@@ -150,7 +141,6 @@ class Battle(threading.Thread):
 		userIdStr = toHandle[2:4]
 		userId = int(userIdStr, 16)
 		message = toHandle[8:-1]
-		
 		chatUser = None
 		for user, uInfo in self.ppl.items():
 			if uInfo['index'] == userId:
@@ -182,9 +172,6 @@ class Battle(threading.Thread):
 		self.map_file=mapInfo['fileName']
 		self.map_name=mapInfo['mapName']
 
-		#print('!!!!!!!!!!!!!!!!!!!!usync chmap called')
-		#self.unitSync.startHeshThread(map_file,self.mod_file)
-		#unit_sync = self.unitSync.getResult()
 		unit_sync = {"mapHesh":-1710297209,"modHesh":-1710297209}
 		self.client.login(self.username,self.password)
 
@@ -194,12 +181,8 @@ class Battle(threading.Thread):
 		_thread.start_new_thread( self.client.keepalive,(self.username,))
 		self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.map_name,  self.roomName, self.gameName)
 		self.autohostCTL.joinChat(self.bid)
-
-		#hosterCTL[self.bid]="NOACTIONYET!" #init the control dictionary
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
-		#client.clearBuffer(self.username)
 		self.teamConfig=''
-		#OLD: self.leaderConfig={}
 		self.leaderConfig=""
 		self.aiList=''
 		self.comment = ''	
@@ -207,7 +190,6 @@ class Battle(threading.Thread):
 
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
-		#client.clearBuffer(self.username)
 		self.client.sayChat('bus', self.listMap()+" ")
 		self.client.clearBuffer(self.username)
 		
@@ -239,13 +221,12 @@ class Battle(threading.Thread):
 				if ctl['action'] == 'joinasSpec':     ##everyone commands, commands that everyone can run
 					if ctl['caller'] in [self.ppl.strip() for self.ppl in self.teamConfig.split(' ') ]:
 						self.rejoin(ctl['caller'])
-						
 					else:
 						self.autohostServer.autohostInterfaceSayChat('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
 						time.sleep(1)
 						self.joinasSpec(ctl['caller'])
 					continue
-						#print(colored('[INFO]', 'white'), 'Connection allowed')
+					
 						
 						
 				if ctl['action'] == 'forward2AutohostInterface':     ##everyone commands, commands that everyone can run
@@ -307,7 +288,6 @@ class Battle(threading.Thread):
 					if ctl["action"]=="exit":
 						self.gemStop()
 						
-					
 					if ctl["action"]=="teams":
 						try:
 							self.teamConfig=ctl["msg"]
@@ -320,14 +300,15 @@ class Battle(threading.Thread):
 					if ctl["action"]=="leader":
 						try:
 							# OLD: self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
-							self.leaderConfig = ctl["msg"].split()[1]
-							print(colored('[INFO]', 'cyan'), "LeaderInfo: ", self.leaderConfig)
-							self.stateDump()
+							if not ctl["msg"].split()[1]=='':
+								self.leaderConfig = ctl["msg"].split()[1]
+								print(colored('[INFO]', 'cyan'), "LeaderInfo: ", self.leaderConfig)
+								self.stateDump()
 						except:
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))
 
 					if ctl['action'] =='cheat':
 						self.autohostServer.autohostInterfaceSayChat('/Cheat')
-						self.autohostServer.autohostInterfaceSayChat('/NoCost')
+						#self.autohostServer.autohostInterfaceSayChat('/NoCost')
 						
 						print(colored('[INFO]', 'green'), colored(self.username+': Enabling cheat for this hoster!'))
