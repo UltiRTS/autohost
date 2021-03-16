@@ -37,7 +37,7 @@ class ServerLauncher():
 
 	##############player gen####################################
 		for player in self.players:
-			if self.players[player]['isAI']==True:
+			if self.players[player]['isAI']==True or self.players[player]['isChicken']==True:
 				continue
 
 
@@ -63,6 +63,7 @@ class ServerLauncher():
 		
 		if defaultLeader is None:
 			defaultLeader = 0
+
 			
 		for player in self.players:
 			if self.players[player]['isAI']==True:
@@ -98,7 +99,7 @@ class ServerLauncher():
 #			if self.players[player]['isAI']==True:
 #				continue
 			
-			if self.players[player]['isAI'] == True:
+			if self.players[player]['isAI'] == True or self.players[player]['isChicken']==True:
 				team = OptionFactory("TEAM" + str(self.teamPtr))
 				team.addFromDict({
 					'AllyTeam': self.players[player]['team'],

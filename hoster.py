@@ -140,6 +140,7 @@ class Battle(threading.Thread):
 			except:
 				leader = list(self.ppl.keys())[0]
 				self.ppl[leader]['isLeader'] = True
+				print(colored('[INFO]', 'red'), "leader config is not valid.")
 						
 			print('player custom config'+str(self.ppl))
 			self.gemStart()
@@ -163,9 +164,9 @@ class Battle(threading.Thread):
 	def stateDump(self,isLoading=False):
 		
 		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment + ' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment, 'ingameChat': self.ingameChatMsg + ' '}))
 		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment + ' '}))
+			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment, 'ingameChat': self.ingameChatMsg + ' '}))
 	
 	def joinasSpec(self,usrName):
 		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
@@ -202,6 +203,7 @@ class Battle(threading.Thread):
 		self.leaderConfig=""
 		self.aiList=''
 		self.comment = ''	
+		self.ingameChatMsg = ''
 
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
@@ -253,7 +255,9 @@ class Battle(threading.Thread):
 						
 				if ctl['action'] == 'sayBtlRoom': 		
 					user, message = self.parseIngameMsg(ctl['msg'])
-					self.autohostCTL.sayChat(str(self.bid),user + " said: " + message)
+					self.ingameChatMsg = user + ' ' + message
+					self.stateDump()
+					#self.autohostCTL.sayChat(str(self.bid),user + " said: " + message)
 					continue
 					
 				if ctl['caller']==self.hostedby: #(non pollable&host only commands)
@@ -317,6 +321,7 @@ class Battle(threading.Thread):
 						try:
 							# OLD: self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
 							self.leaderConfig = ctl["msg"].split()[1]
+							print(colored('[INFO]', 'cyan'), "LeaderInfo: ", self.leaderConfig)
 							self.stateDump()
 						except:
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))

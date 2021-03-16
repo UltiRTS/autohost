@@ -1,6 +1,7 @@
 import ctypes
 from multiprocessing.pool import ThreadPool
 import os
+from difflib import SequenceMatcher
 
 from termcolor import colored
 
@@ -21,6 +22,14 @@ class UnitSync:
 		self._getMapCount.restype = ctypes.c_int
 		self._getMapName.restype = ctypes.c_char_p
 		self._getMapFileName.restype = ctypes.c_char_p
+	
+	def _similiar(self, a, b):
+		return SequenceMatcher(None, a, b).ratio()
+	
+	def _getMaxValueCorrespondsKey(self, aDict):
+		print(colored('[INFO]', 'cyan'), "Ratios: ", aDict)
+		print(colored('[INFO]', 'cyan'), "Sorted Map: ", sorted(aDict, key=lambda x:aDict[x], reverse=True))
+		return sorted(aDict, key=lambda x:aDict[x], reverse=True)[0]
 		
 	def startHeshThread(self, map_path, mod_hesh):
 		self.pool = ThreadPool(processes=1)
@@ -44,20 +53,26 @@ class UnitSync:
 	def syn2map(self,requestedMapName):
 		mapCount = self._getMapCount()
 		requestedMapName=requestedMapName.replace('🦔', ' ')
+		mapDictWithWeight = {}
+		mapIndexDict = {}
 		for i in range(mapCount):
 			mapName = self._getMapName(i).decode('utf-8')
-			if requestedMapName in mapName:
-				fname = self._getMapFileName(i).decode('utf-8')
-				break
-		else:
-			fname = mapName = None
-			print(colored('[ERRO]', 'red'), colored(self.username+'/unitSync: map '+requestedMapName+' not found', 'white'))
-			return {'mapName': None, 'fileName': None}
+			mapDictWithWeight[mapName] = self._similiar(mapName, requestedMapName)
+			mapIndexDict[mapName] = i
+#			if requestedMapName in mapName:
+#				fname = self._getMapFileName(i).decode('utf-8')
+#				break
+#		else:
+#			fname = mapName = None
+#			print(colored('[ERRO]', 'red'), colored(self.username+'/unitSync: map '+requestedMapName+' not found', 'white'))
+#			return {'mapName': None, 'fileName': None}
 
 		#print( mapName, fname )
 		
 		#mapName = mapName[5:-4]
 		#fname = fname.replace(' ', '🦔') + ".sd7"  #I doubt map file name is used
+		mapName = self._getMaxValueCorrespondsKey(mapDictWithWeight)
+		fname = self._getMapFileName(mapIndexDict[mapName]).decode('utf-8')
 		mapName = mapName.replace(' ', '🦔')
 		print( colored('[INFO]', 'green'), colored(self.username+'/unitSync: Returning actual mapfile: '+fname+' with map name '+mapName, 'white'))
 		return {'mapName': mapName, 'fileName': fname}
