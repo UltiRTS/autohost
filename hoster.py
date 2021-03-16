@@ -140,6 +140,7 @@ class Battle(threading.Thread):
 			except:
 				leader = list(self.ppl.keys())[0]
 				self.ppl[leader]['isLeader'] = True
+				print(colored('[INFO]', 'red'), "leader config is not valid.")
 						
 			print('player custom config'+str(self.ppl))
 			self.gemStart()
@@ -317,6 +318,7 @@ class Battle(threading.Thread):
 						try:
 							# OLD: self.leaderConfig[ctl["msg"].split()[1]]=ctl["msg"].split()[2]   #for every team there will be only 1 leader; every time this runs, the leader gets overwritten
 							self.leaderConfig = ctl["msg"].split()[1]
+							print(colored('[INFO]', 'cyan'), "LeaderInfo: ", self.leaderConfig)
 							self.stateDump()
 						except:
 							print(colored('[WARN]', 'red'), colored(self.username+': dropping bad leader cmd!', 'white'))
