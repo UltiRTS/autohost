@@ -230,8 +230,9 @@ class Battle(threading.Thread):
 						
 						
 				if ctl['action'] == 'forward2AutohostInterface':     ##everyone commands, commands that everyone can run
-					self.autohostServer.autohostInterfaceSayChat('/ChatAll')
-					self.autohostServer.autohostInterfaceSayChat(ctl['caller'] + '$ ' + ctl['msg'])
+					if self.server.engineAlive():
+						self.autohostServer.autohostInterfaceSayChat('/ChatAll')
+						self.autohostServer.autohostInterfaceSayChat(ctl['caller'] + '$ ' + ctl['msg'])
 					continue
 						
 				if ctl['action'] == 'sayBtlRoom': 		
