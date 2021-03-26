@@ -118,8 +118,8 @@ class Battle(threading.Thread):
 		
 		elif gemType=="custom":
 			result=self.letter2Teams(preDefined)
-			print('result:'+ str(result))
-			print('ppl: '+str(self.ppl))
+			#print('result:'+ str(result))
+			#print('ppl: '+str(self.ppl))
 			for player in self.ppl:                      #apply team designation to ppl matrix
 				try:
 					self.ppl[player]['team']=result[player]
@@ -128,13 +128,15 @@ class Battle(threading.Thread):
 					
 			## TODO: test
 			try:
-				self.ppl[leaderConfig]['isLeader'] = True
+				self.ppl[self.leaderConfig]['isLeader'] = True
 			except:
 				leader = list(self.ppl.keys())[0]
 				self.ppl[leader]['isLeader'] = True
-				print(colored('[INFO]', 'red'), "leader config is not valid.")
+				print(colored('[WARN]', 'red'), colored(self.username+': leader config'+self.leaderConfig+" is not valid.", 'white'))
+				
 						
 			print('player custom config'+str(self.ppl))
+			print(colored('[INFO]', 'green'), colored(self.username+': player custom config'+str(self.ppl), 'white'))
 			self.gemStart()
 			
 	def parseIngameMsg(self, msg):
