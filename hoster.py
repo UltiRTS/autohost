@@ -37,6 +37,14 @@ class Battle(threading.Thread):
 		self.server=ServerLauncher()
 		self.hosterMem={}
 		
+	def getPplMaxIndex(self):
+		theMax = 0
+		for uName, uInfo in self.ppl.items():
+			if uInfo['index'] > theMax:
+				theMax = uInfo['index']
+
+		return theMax
+			
 	def letter2Teams(self,playerCMD):
 		receivedStr= playerCMD.split(" ")
 		n=0
@@ -150,6 +158,9 @@ class Battle(threading.Thread):
 			if uInfo['index'] == userId:
 				chatUser = user
 				break
+		
+		if userId in self.spectors.keys():
+			chatUser = self.spectors[userId]
 
 		print("userid: ", userId, " User: ", chatUser)
 
@@ -229,6 +240,10 @@ class Battle(threading.Thread):
 						self.rejoin(ctl['caller'])
 					else:
 						self.autohostServer.autohostInterfaceSayChat('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
+						if ctl['caller'] not in self.spectors.values():
+							self.pplIngameCount += 1	
+							self.spectors[self.pplIngameCount] = ctl['caller']
+					
 						time.sleep(1)
 						self.joinasSpec(ctl['caller'])
 					continue
@@ -290,6 +305,7 @@ class Battle(threading.Thread):
 
 					if ctl["action"]=="start":
 						self.ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
+						self.pplIngameCount = self.getPplMaxIndex()
 						print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
 						self.balance('custom',self.leaderConfig,self.teamConfig)
 						
