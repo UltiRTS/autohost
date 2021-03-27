@@ -37,6 +37,14 @@ class Battle(threading.Thread):
 		self.server=ServerLauncher()
 		self.hosterMem={}
 		
+	def getPplMaxIndex(self):
+		theMax = 0
+		for uName, uInfo in self.ppl.items():
+			if uInfo['index'] > theMax:
+				theMax = uInfo['index']
+
+		return theMax
+			
 	def letter2Teams(self,playerCMD):
 		receivedStr= playerCMD.split(" ")
 		n=0
@@ -145,10 +153,14 @@ class Battle(threading.Thread):
 		userId = int(userIdStr, 16)
 		message = toHandle[8:-1]
 		chatUser = None
+		print(self.ppl)
 		for user, uInfo in self.ppl.items():
 			if uInfo['index'] == userId:
 				chatUser = user
 				break
+		
+		if userId in self.spectors.keys():
+			chatUser = self.spectors[userId]
 
 		print("userid: ", userId, " User: ", chatUser)
 
@@ -190,6 +202,8 @@ class Battle(threading.Thread):
 		self.aiList=''
 		self.comment = ''	
 		self.ingameChatMsg = ''
+		self.ppl = {}
+		self.spectors = {}
 
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
@@ -222,10 +236,14 @@ class Battle(threading.Thread):
 				#print(ctl)
 				
 				if ctl['action'] == 'joinasSpec':     ##everyone commands, commands that everyone can run
-					if ctl['caller'] in [self.ppl.strip() for self.ppl in self.teamConfig.split(' ') ]:
+					if ctl['caller'] in [ppl.strip() for ppl in self.teamConfig.split(' ') ]:
 						self.rejoin(ctl['caller'])
 					else:
 						self.autohostServer.autohostInterfaceSayChat('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
+						if ctl['caller'] not in self.spectors.values():
+							self.pplIngameCount += 1	
+							self.spectors[self.pplIngameCount] = ctl['caller']
+					
 						time.sleep(1)
 						self.joinasSpec(ctl['caller'])
 					continue
@@ -239,6 +257,7 @@ class Battle(threading.Thread):
 					continue
 						
 				if ctl['action'] == 'sayBtlRoom': 		
+					print("GOT: ", ctl['msg'])
 					user, message = self.parseIngameMsg(ctl['msg'])
 					self.ingameChatMsg = user + ' ' + message
 					self.stateDump()
@@ -286,6 +305,7 @@ class Battle(threading.Thread):
 
 					if ctl["action"]=="start":
 						self.ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
+						self.pplIngameCount = self.getPplMaxIndex()
 						print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
 						self.balance('custom',self.leaderConfig,self.teamConfig)
 						

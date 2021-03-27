@@ -2,10 +2,11 @@ import threading
 from termcolor import colored
 from lib.quirks.serverNetwork import serverNetwork
 import queue
+import re
 
 deliver = queue.Queue()
 
-
+chatMsgPatt = re.compile(r".*\\r\\x[0-9]{2}\\xfe")
 
 
 class AutohostServer(threading.Thread):
@@ -40,7 +41,7 @@ class AutohostServer(threading.Thread):
 					}
 					deliver.put(ctl)
 				
-				if r"\r\x00\xfe" in receivedMsg:
+				if re.match(chatMsgPatt, receivedMsg):
 					#receivedMsg = receivedMsg[12:-1]
 					print(colored('[INFO]', 'cyan'), "received: ", receivedMsg)
 					ctl = {
@@ -51,4 +52,6 @@ class AutohostServer(threading.Thread):
 						"action":'sayBtlRoom'
 					}
 					deliver.put(ctl)
+				else:
+					print(colored('[INFO]', 'cyan'), "received: ", receivedMsg)
 					
