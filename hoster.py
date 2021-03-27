@@ -145,6 +145,7 @@ class Battle(threading.Thread):
 		userId = int(userIdStr, 16)
 		message = toHandle[8:-1]
 		chatUser = None
+		print(self.ppl)
 		for user, uInfo in self.ppl.items():
 			if uInfo['index'] == userId:
 				chatUser = user
@@ -190,6 +191,8 @@ class Battle(threading.Thread):
 		self.aiList=''
 		self.comment = ''	
 		self.ingameChatMsg = ''
+		self.ppl = {}
+		self.spectors = {}
 
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
@@ -222,7 +225,7 @@ class Battle(threading.Thread):
 				#print(ctl)
 				
 				if ctl['action'] == 'joinasSpec':     ##everyone commands, commands that everyone can run
-					if ctl['caller'] in [self.ppl.strip() for self.ppl in self.teamConfig.split(' ') ]:
+					if ctl['caller'] in [ppl.strip() for ppl in self.teamConfig.split(' ') ]:
 						self.rejoin(ctl['caller'])
 					else:
 						self.autohostServer.autohostInterfaceSayChat('/AddUser '+ctl['caller'] + ' '+self.engineToken + ' 1')
@@ -239,6 +242,7 @@ class Battle(threading.Thread):
 					continue
 						
 				if ctl['action'] == 'sayBtlRoom': 		
+					print("GOT: ", ctl['msg'])
 					user, message = self.parseIngameMsg(ctl['msg'])
 					self.ingameChatMsg = user + ' ' + message
 					self.stateDump()
