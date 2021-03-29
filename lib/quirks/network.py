@@ -23,9 +23,13 @@ class Network:
 		#print('Network: Send %s' % cmd)
 
 	def receive(self):
-		recvData = self.sock.recv(1024).decode("utf8")
-		while not recvData.endswith('\n'):
-			recvData+=self.sock.recv(1024).decode("utf8")
+		try:
+			recvData = self.sock.recv(1024).decode("utf8")
+			while not recvData.endswith('\n'):
+				recvData+=self.sock.recv(1024).decode("utf8")
+		except:
+			return
+		
 		recvData=recvData.split('\n')
 		for i in range(len(recvData)):
 			self.cmd_queue.put(recvData[i])
