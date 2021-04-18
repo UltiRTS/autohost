@@ -79,6 +79,18 @@ if __name__ == "__main__":
 			
 		else:
 			# adding the ctl to Message queue, when all ctl been got and processed, the `hoster.py` call task_done then back to `main.py` to move to next command
+			if 'spec' in msg:
+				try:
+					ctl = {
+						"bid": msg['bid'],
+						"msg": msg['spec'],
+						"caller":user,
+						"ttl":0,
+						"action":'specOrder'
+					}
+					deliver.put(ctl)
+				except:
+					print(colored('[WARN]', 'red'), colored('Autohost_CTL: Incomplete SpecOrder cmd', 'white'))
 			if 'joinasSpec' in msg:
 				try:
 					ctl = {
