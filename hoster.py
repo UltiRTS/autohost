@@ -205,6 +205,8 @@ class Battle(threading.Thread):
 		self.ppl = {}
 		self.spectors = {}
 
+		self.preSpectors = []
+
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		self.client.sayChat('bus', self.listMap()+" ")
@@ -235,6 +237,23 @@ class Battle(threading.Thread):
 			else:   #do the following if the bid matches mine
 				#print(ctl)
 				
+				if ctl['action'] == 'specOrder':
+					if self.server.engineAlive():
+						print(colored('[ERRO]', 'red'), ": engine started, spec order failed.")
+					toBeSpec = ctl['msg'].split(' ')
+					if ctl['caller'] == self.hostedby:
+						for spector in toBeSpec:
+							if spector not in self.preSpectors:
+								self.preSpectors.append(spector)
+					elif ctl['caller'] in toBeSpec:
+						if ctl['caller'] not in self.preSpectors:
+							self.preSpectors.append(ctl['caller'])
+
+					print(self.preSpectors)
+
+					continue
+
+
 				if ctl['action'] == 'joinasSpec':     ##everyone commands, commands that everyone can run
 					if ctl['caller'] in [ppl.strip() for ppl in self.teamConfig.split(' ') ]:
 						self.rejoin(ctl['caller'])
@@ -305,6 +324,12 @@ class Battle(threading.Thread):
 
 					if ctl["action"]=="start":
 						self.ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
+
+						for player in self.ppl:
+							if player in self.preSpectors:
+								self.ppl[player]['isSpector'] = True
+
+						print(self.ppl)
 						self.pplIngameCount = self.getPplMaxIndex()
 						print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
 						self.balance('custom',self.leaderConfig,self.teamConfig)

@@ -120,7 +120,7 @@ class Client():
 							#print (response)
 							#print('aaaa')
 							for i in response:
-								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False, 'isChicken': False}
+								playerMatrix[i]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False, 'isChicken': False, 'isSpector': False}
 								#print('bbb')
 								#print (playerMatrix[i])
 								pindex+=1
@@ -128,10 +128,10 @@ class Client():
 						
 							for j in teamConf.split():
 								if j.startswith('GPT'):
-									playerMatrix[j]={'team':0,'muted':0,'isAI':True,'index':pindex,'isLeader':False, 'isChicken': False}
+									playerMatrix[j]={'team':0,'muted':0,'isAI':True,'index':pindex,'isLeader':False, 'isChicken': False, 'isSpector': False}
 									pindex+=1
 								elif j.startswith('Chicken'):
-									playerMatrix[j]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False, 'isChicken': True}
+									playerMatrix[j]={'team':0,'muted':0,'isAI':False,'index':pindex,'isLeader':False, 'isChicken': True, 'isSpector': False}
 									pindex+=1
 
 							return playerMatrix

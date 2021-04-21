@@ -37,14 +37,24 @@ class ServerLauncher():
 
 
 			pl = OptionFactory("PLAYER" + str(self.players[player]['index']))
-			pl.addFromDict({
-				'Name': player,
-				'Spectator': 0,
-				'Team': self.players[player]['index'],
-				'CountryCode': "??",
-				'Rank': 0,
-				'Skill': "(10)"
-				})
+			if self.players[player]['isSpector'] == True:	
+				pl.addFromDict({
+					'Name': player,
+					'Spectator': 1,
+					'Team': self.players[player]['index'],
+					'CountryCode': "??",
+					'Rank': 0,
+					'Skill': "(10)"
+					})
+			else:
+				pl.addFromDict({
+					'Name': player,
+					'Spectator': 0,
+					'Team': self.players[player]['index'],
+					'CountryCode': "??",
+					'Rank': 0,
+					'Skill': "(10)"
+					})
 
 			game.addFromOptionInstance(pl)
 

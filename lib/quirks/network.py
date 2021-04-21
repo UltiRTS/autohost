@@ -27,6 +27,9 @@ class Network:
 			recvData = self.sock.recv(1024).decode("utf8")
 			while not recvData.endswith('\n'):
 				recvData+=self.sock.recv(1024).decode("utf8")
+		except KeyboardInterrupt:
+			print("Exiting....")
+			exit()
 		except:
 			return
 		
