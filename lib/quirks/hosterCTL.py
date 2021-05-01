@@ -1,2 +1,5 @@
-hosterCTL={'default':'default'}
+import queue
+deliver = queue.Queue()
+
+
 isInetDebug=True

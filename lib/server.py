@@ -1,10 +1,11 @@
 import threading
 from termcolor import colored
 from lib.quirks.serverNetwork import serverNetwork
-import queue
+from lib.quirks.hosterCTL import deliver
+
 import re
 
-deliver = queue.Queue()
+
 
 chatMsgPatt = re.compile(r".*\\r\\x[0-9]{2}\\xfe")
 

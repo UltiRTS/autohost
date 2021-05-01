@@ -8,7 +8,7 @@ from lib.quirks.autohost_factory import AutohostFactory #ability to change crede
 from termcolor import colored
 import lib.cmdInterpreter
 from lib.quirks.hosterCTL import isInetDebug
-from lib.server import deliver
+from lib.quirks.hosterCTL import deliver
 #from multiprocessing import SimpleQueue
 password = b'password'
 map_file = 'Comet'

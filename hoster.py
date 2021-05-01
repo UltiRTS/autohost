@@ -9,7 +9,7 @@ import lib.cmdInterpreter
 import random
 import string 
 import datetime
-from lib.server import deliver
+from lib.quirks.hosterCTL import deliver
 from lib.server import AutohostServer
 from lib.dbpastgameRecorder import recordThisReplay
 
