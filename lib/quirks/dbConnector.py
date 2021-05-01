@@ -6,7 +6,7 @@ from sqlalchemy import Column, String, Integer, DateTime
 Base = declarative_base()
 class past_games(Base):
 
-	engine = create_engine('mysql://lobbyServer:lobbyServer@localhost/lobbyServer')
+	engine = create_engine('mysql://lobbyServer:lobbyServer@localhost/lobbyServer',encoding='utf-8')
 
 	__tablename__ = 'past_games'
 
