@@ -23,15 +23,9 @@ class Network:
 		#print('Network: Send %s' % cmd)
 
 	def receive(self):
-		try:
-			recvData = self.sock.recv(1024).decode("utf8")
-			while not recvData.endswith('\n'):
-				recvData+=self.sock.recv(1024).decode("utf8")
-		except KeyboardInterrupt:
-			print("Exiting....")
-			exit()
-		except:
-			return
+		recvData = self.sock.recv(1024).decode("utf8", 'ignore')
+		while not recvData.endswith('\n'):
+			recvData+=self.sock.recv(1024).decode("utf8")
 		
 		recvData=recvData.split('\n')
 		for i in range(len(recvData)):

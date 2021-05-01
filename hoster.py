@@ -8,12 +8,13 @@ from serverlauncher import ServerLauncher
 import lib.cmdInterpreter
 import random
 import string 
+import datetime
 from lib.server import deliver
 from lib.server import AutohostServer
-
+from lib.dbpastgameRecorder import recordThisReplay
 
 class Battle(threading.Thread):
-
+	bid=0
 	def __init__(self,userName, startDir, autohostFactory, password, map_file, mod_file, engineName, engineVersion, roomName, gameName,battlePort,autohostCTLClient):
 		threading.Thread.__init__(self)
 		self.autohost = autohostFactory;
@@ -194,7 +195,7 @@ class Battle(threading.Thread):
 		self.client.clearBuffer(self.username)
 		
 		_thread.start_new_thread( self.client.keepalive,(self.username,))
-		self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.map_name,  self.roomName, self.gameName)
+		bid=self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.map_name,  self.roomName, self.gameName)
 		self.autohostCTL.joinChat(self.bid)
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		self.teamConfig=''
@@ -221,22 +222,16 @@ class Battle(threading.Thread):
 			
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				#deliver.task_done()
-				ctl["ttl"]+=1
-				print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' marked as '+ctl["bid"]+' does not belong to this autohost'+self.bid, 'white'))
+				print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' marked as '+ctl["bid"]+' does not belong to this autohost, halting'+self.bid, 'white'))
+				deliver.put(ctl)
+				deliver.join()
 				
-				if ctl["ttl"]<=50:
-					deliver.put(ctl)
-					time.sleep(0.1)
-					continue
-				else:
-					print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' disposed of', 'white'))
-					continue
 				#else:
 				
 
 			else:   #do the following if the bid matches mine
 				#print(ctl)
-				
+				deliver.task_done()
 				if ctl['action'] == 'specOrder':
 					if self.server.engineAlive():
 						print(colored('[ERRO]', 'red'), ": engine started, spec order failed.")
@@ -335,6 +330,7 @@ class Battle(threading.Thread):
 						self.balance('custom',self.leaderConfig,self.teamConfig)
 						
 					if ctl["action"]=="exit":
+						recordThisReplay(self.bid,str(datetime.datetime.utcnow()),self.map_name,self.hostedby,'unknown', str(self.ppl),'unknown','unknown',str(self.aiList),'unknown','01:30:02')
 						self.gemStop()
 						
 					if ctl["action"]=="teams":

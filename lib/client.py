@@ -14,7 +14,7 @@ class Client():
 
 	def __init__(self, battlePort, startDir):
 		self.network = Network()
-		self.network.connect('ultirts.net')
+		self.network.connect('ulti-wiki.eterea.uk')
 		self.battlePort=battlePort
 		self.startDir=startDir
 	

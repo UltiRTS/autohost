@@ -2,7 +2,7 @@
 import os
 from lib.client import Client
 import _thread
-from multiprocessing import Queue
+
 from hoster import Battle #ability to open battles
 from lib.quirks.autohost_factory import AutohostFactory #ability to change credential to host battles
 from termcolor import colored

@@ -34,13 +34,13 @@ class AutohostFactory:
 		print(colored('[INFO]', 'green'), colored('AFAC: Returning'+ username+'to the idle pool.', 'white'))
 	def _new_autohost(self):
 		network = Network()
-		network.connect('ultirts.net')
+		network.connect('ulti-wiki.eterea.uk')
 		username = "Autohost_%i" % self.count
 		password = b64encode(md5(b'password').digest()).decode('utf8')
 		network.send("REGISTER %s %s" % (username, password)) # TODO: Check for errors
 		network.disconnect()
 		network = Network()
-		network.connect('ultirts.net')
+		network.connect('ulti-wiki.eterea.uk')
 		command = 'LOGIN %s %s %i %s' % (username, password, 0, '*')
 		network.send(command)
 		print(colored('[WARN]', 'red'), colored('AFAC: registering new account '+username, 'white'))
