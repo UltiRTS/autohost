@@ -200,7 +200,7 @@ class Battle(threading.Thread):
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		self.teamConfig=''
 		self.leaderConfig=""
-		self.aiList=''
+		
 		self.comment = ''	
 		self.ingameChatMsg = ''
 		self.ppl = {}
@@ -330,7 +330,7 @@ class Battle(threading.Thread):
 						self.balance('custom',self.leaderConfig,self.teamConfig)
 						
 					if ctl["action"]=="exit":
-						recordThisReplay(self.bid,str(datetime.datetime.utcnow()),self.map_name,self.hostedby,'unknown', str(self.ppl),'unknown','unknown',str(self.aiList),'unknown','01:30:02')
+						recordThisReplay(self.bid,str(datetime.datetime.utcnow()), self.map_name, self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02')
 						self.gemStop()
 						
 					if ctl["action"]=="teams":

@@ -18,7 +18,7 @@ class past_games(Base):
 	players = Column('players',String(64), nullable=False)
 	player_ip = Column('player_ip',String(64), nullable=False)
 	player_in_game_ip = Column('player_in_game_ip',String(64), nullable=False)
-	bots = Column('bots',String(64), nullable=False)
+	
 	winner = Column('winner',String(64), nullable=False)
 	duration = Column('duration',String(64), nullable=False)
 

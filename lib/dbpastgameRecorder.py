@@ -4,7 +4,7 @@ from lib.quirks.dbConnector import past_games
 from sqlalchemy.orm import sessionmaker
 
 
-def recordThisReplay(battleID,dateTime,nameofMap,host,hostIP,playerTeam,playerIP,playerinGameIP,botsTeam,wonTeam,timeElapsed):
+def recordThisReplay(battleID,dateTime,nameofMap,host,hostIP,playerTeam,playerIP,playerinGameIP,wonTeam,timeElapsed):
 	session = sessionmaker(bind=past_games.engine)
 	mysql = session()
 

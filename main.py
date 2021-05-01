@@ -60,7 +60,7 @@ if __name__ == "__main__":
 						"bid": bid,
 						"msg": ' '.join(msg),
 						"caller":user,
-						"ttl":0,
+						
 						"action":'forward2AutohostInterface'
 					}
 			deliver.put(ctl)
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 						"bid": msg['bid'],
 						"msg": msg['spec'],
 						"caller":user,
-						"ttl":0,
+						
 						"action":'specOrder'
 					}
 					deliver.put(ctl)
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 						"bid": msg['bid'],
 						"msg": 'joinasSpec',
 						"caller":user,
-						"ttl":0,
+						
 						"action":'joinasSpec'
 					}
 					deliver.put(ctl)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 						"bid": msg['bid'],
 						"msg": msg['comment'],
 						"caller":user,
-						"ttl":0,
+						
 						"action":'comment'
 					}
 					deliver.put(ctl)
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 						"bid": msg['bid'],
 						"msg": 'cheat',
 						"caller":user,
-						"ttl":0,
+						
 						"action":'cheat'
 					}
 					deliver.put(ctl)
@@ -136,7 +136,7 @@ if __name__ == "__main__":
 						"bid": msg['bid'],
 						"msg": 'exit',
 						"caller":user,
-						"ttl":0,
+						
 						"action":'exit'
 					}
 					deliver.put(ctl)
@@ -149,7 +149,7 @@ if __name__ == "__main__":
 						"bid": msg['bid'],
 						"msg": msg['map'],
 						"caller":user,
-						"ttl":0,
+						
 						"action":'chmap'
 					}
 					deliver.put(ctl)
@@ -163,7 +163,7 @@ if __name__ == "__main__":
 						"bid": msg['bid'],
 						"msg": user,
 						"caller":user,
-						"ttl":0,
+						
 						"action":'left'
 					}
 					deliver.put(ctl)
@@ -176,7 +176,7 @@ if __name__ == "__main__":
 						"bid": msg['bid'],
 						"msg": user,
 						"caller":user,
-						"ttl":0,
+						
 						"action":'start'
 					}
 					deliver.put(ctl)
@@ -190,7 +190,7 @@ if __name__ == "__main__":
 					"bid": msg['bid'],
 					"msg":"leader "+msg['leader'],
 					"caller":user,
-					"ttl":0,
+					
 					"action":'leader'
 					}
 					deliver.put(ctl)
@@ -204,7 +204,7 @@ if __name__ == "__main__":
 					"bid": msg['bid'],
 					"msg": msg['player'],
 					"caller":user,
-					"ttl":0,
+					
 					"action":'teams'
 					}
 					deliver.put(ctl)
