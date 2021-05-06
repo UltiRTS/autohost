@@ -27,8 +27,8 @@ class UnitSync:
 		return SequenceMatcher(None, a, b).ratio()
 	
 	def _getMaxValueCorrespondsKey(self, aDict):
-		print(colored('[INFO]', 'cyan'), "Ratios: ", aDict)
-		print(colored('[INFO]', 'cyan'), "Sorted Map: ", sorted(aDict, key=lambda x:aDict[x], reverse=True))
+		#print(colored('[INFO]', 'cyan'), "Ratios: ", aDict)
+		#print(colored('[INFO]', 'cyan'), "Sorted Map: ", sorted(aDict, key=lambda x:aDict[x], reverse=True))
 		return sorted(aDict, key=lambda x:aDict[x], reverse=True)[0]
 		
 	def startHeshThread(self, map_path, mod_hesh):

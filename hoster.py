@@ -11,7 +11,7 @@ import string
 import datetime
 from lib.quirks.hosterCTL import deliver
 from lib.server import AutohostServer
-from lib.dbpastgameRecorder import recordThisReplay
+from lib.dbClient import recordThisReplay
 
 class Battle(threading.Thread):
 	bid=0
@@ -96,7 +96,7 @@ class Battle(threading.Thread):
 	def listMap(self):
 		self.mapList = random.sample(self.unitSync.mapList().split(), 5)
 		self.mapList = ' '.join(self.mapList)
-		print(colored('[INFO]', 'green'), colored(self.username+': Listing map with cmd:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': self.mapList+" "}), 'white'))
+		#print(colored('[INFO]', 'green'), colored(self.username+': Listing map with cmd:'+lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'available-maps': self.mapList+" "}), 'white'))
 		
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'join':self.bid,'available-maps': self.mapList, 'hoster': self.hostedby}))
 	
@@ -324,13 +324,14 @@ class Battle(threading.Thread):
 							if player in self.preSpectors:
 								self.ppl[player]['isSpector'] = True
 
-						print(self.ppl)
+						#print(self.ppl)
 						self.pplIngameCount = self.getPplMaxIndex()
-						print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
+						#print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
 						self.balance('custom',self.leaderConfig,self.teamConfig)
 						
 					if ctl["action"]=="exit":
-						recordThisReplay(self.bid,str(datetime.datetime.utcnow()), self.map_name, self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02')
+						print(colored('[INFO]', 'green'), colored(self.username+': Exiting', 'white'))
+						recordThisReplay(self.bid,str(datetime.datetime.utcnow()), self.map_name.replace('🦔', ' '), self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02')
 						self.gemStop()
 						
 					if ctl["action"]=="teams":

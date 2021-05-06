@@ -24,6 +24,8 @@ class Network:
 
 	def receive(self):
 		recvData = self.sock.recv(1024).decode("utf8", 'ignore')
+		#recvData = self.sock.recv(1024)
+		#print(recvData)
 		while not recvData.endswith('\n'):
 			recvData+=self.sock.recv(1024).decode("utf8")
 		
