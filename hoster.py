@@ -34,7 +34,7 @@ class Battle(threading.Thread):
 		self.autohostCTL=autohostCTLClient
 		self.client        = Client(self.battlePort,self.startDir)
 		self.unitSync      = UnitSync(self.startDir, self.startDir+'/engine/libunitsync.so',self.username)
-		self.isLaunched= False;
+		self.isLaunched    = False;
 		self.server=ServerLauncher()
 		self.hosterMem={}
 		
@@ -195,7 +195,7 @@ class Battle(threading.Thread):
 		self.client.clearBuffer(self.username)
 		
 		_thread.start_new_thread( self.client.keepalive,(self.username,))
-		bid=self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.map_name,  self.roomName, self.gameName)
+		self.bid=self.client.openBattle(self.username,0, 0, '*', self.battlePort, 5, unit_sync['modHesh'], 1, unit_sync['mapHesh'], self.engineName, self.engineVersion, self.map_name,  self.roomName, self.gameName)
 		self.autohostCTL.joinChat(self.bid)
 		print(colored('[INFO]', 'green'), colored(self.username+': Opening Battle.', 'white'))
 		self.teamConfig=''
@@ -281,8 +281,11 @@ class Battle(threading.Thread):
 				if ctl['caller']==self.hostedby: #(non pollable&host only commands)
 					
 					if ctl["action"]=="left":
+						self.gemStop()
 						self.client.exit()
 						self.autohost.free_autohost(self.username)
+						recordThisReplay(str(datetime.datetime.utcnow()), self.map_name.replace('🦔', ' '), self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02')
+						self.bid=-1
 						# exit thread
 						return
 				
@@ -331,7 +334,7 @@ class Battle(threading.Thread):
 						
 					if ctl["action"]=="exit":
 						print(colored('[INFO]', 'green'), colored(self.username+': Exiting', 'white'))
-						recordThisReplay(self.bid,str(datetime.datetime.utcnow()), self.map_name.replace('🦔', ' '), self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02')
+						recordThisReplay(str(datetime.datetime.utcnow()), self.map_name.replace('🦔', ' '), self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02')
 						self.gemStop()
 						
 					if ctl["action"]=="teams":
