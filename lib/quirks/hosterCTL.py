@@ -1,5 +1,5 @@
-import queue
-deliver = queue.Queue()
+hosterPool=[]
 
 
-isInetDebug=True
+
+isInetDebug=False

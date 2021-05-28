@@ -1,7 +1,7 @@
 import threading
 from termcolor import colored
 from lib.quirks.serverNetwork import serverNetwork
-from lib.quirks.hosterCTL import deliver
+
 
 import re
 
@@ -12,13 +12,14 @@ chatMsgPatt = re.compile(r".*\\r\\x[0-9]{2}\\xfe")
 
 class AutohostServer(threading.Thread):
 
-	def __init__(self, host, port,hostedBy,bid):
+	def __init__(self, host, port,hostedBy,bid,deliver,username):
 		threading.Thread.__init__(self)
 		self.serverNetwork=serverNetwork()
 		self.serverNetwork.bind(host,port)
-		
+		self.username=username
 		self.hostedby=hostedBy
 		self.bid=bid
+		self.deliver=deliver
 	
 	def autohostInterfaceSayChat(self, msg):
 		self.serverNetwork.send(msg)
@@ -30,6 +31,11 @@ class AutohostServer(threading.Thread):
 
 			self.serverNetwork.receive()
 			while self.serverNetwork.hasCmd():
+				#print('autohost server interface triggered')
+				
+			
+			
+			
 				receivedMsg=self.serverNetwork.nextCmd()
 				#print('AUTOHOST SERVER!!!!!!!!!!!!!:'+str(self.serverNetwork.nextCmd()))
 				if 'No clients connected, shutting down server' in receivedMsg:
@@ -40,11 +46,12 @@ class AutohostServer(threading.Thread):
 						"ttl":0,
 						"action":'exit'
 					}
-					deliver.put(ctl)
+					self.deliver.put(ctl)
 				
 				if re.match(chatMsgPatt, receivedMsg):
 					#receivedMsg = receivedMsg[12:-1]
-					print(colored('[INFO]', 'cyan'), "received: ", receivedMsg)
+					#print(colored('[INFO]', 'cyan'), "received: ", receivedMsg)
+					print(colored('[INFO]', 'green'), colored(self.username+" forwarding to lobby: "+ receivedMsg,'white'))
 					ctl = {
 						"bid": self.bid,
 						"msg": receivedMsg,
@@ -52,7 +59,8 @@ class AutohostServer(threading.Thread):
 						"ttl":0,
 						"action":'sayBtlRoom'
 					}
-					deliver.put(ctl)
+					self.deliver.put(ctl)
 				else:
-					print(colored('[INFO]', 'cyan'), "received: ", receivedMsg)
+					#print(colored('[INFO]', 'cyan'), "received: ", receivedMsg)
+					print(colored('[INFO]', 'green'), colored(self.username+" received: "+ receivedMsg,'white'))
 					

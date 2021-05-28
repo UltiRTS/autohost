@@ -9,9 +9,10 @@ import lib.cmdInterpreter
 import random
 import string 
 import datetime
-from lib.quirks.hosterCTL import deliver
+#from lib.quirks.hosterCTL import deliver
 from lib.server import AutohostServer
 from lib.dbClient import recordThisReplay
+import queue
 
 class Battle(threading.Thread):
 	bid=0
@@ -37,6 +38,7 @@ class Battle(threading.Thread):
 		self.isLaunched    = False;
 		self.server=ServerLauncher()
 		self.hosterMem={}
+		self.deliver = queue.Queue()
 		
 	def getPplMaxIndex(self):
 		theMax = 0
@@ -82,9 +84,12 @@ class Battle(threading.Thread):
 		
 		
 	def gemStop(self):
-		self.server.killServer()
-		self.client.stopBattle()
-		print(colored('[INFO]', 'green'), colored(self.username+': hoster exiting!', 'white'))
+		try:
+			self.server.killServer()
+			self.client.stopBattle()
+			print(colored('[INFO]', 'green'), colored(self.username+': hoster exiting!', 'white'))
+		except:
+			pass
 		
 	def getAllyTeamNum(self,players):
 		teamNum=1
@@ -100,8 +105,8 @@ class Battle(threading.Thread):
 		
 		return (lib.cmdInterpreter.cmdWrite('lobbyctl', {'user':self.hostedby,'join':self.bid,'available-maps': self.mapList, 'hoster': self.hostedby}))
 	
-	def balance(self,gemType,leaderConfig,preDefined="false"):
-		
+	def balance(self,gemType,preDefined="false"):
+		#self.leaderConfig,self.teamConfig
 		i=0
 		if gemType=='fafafa':
 			self.gemStart()
@@ -126,9 +131,10 @@ class Battle(threading.Thread):
 			self.gemStart()
 		
 		elif gemType=="custom":
-			result=self.letter2Teams(preDefined)
-			#print('result:'+ str(result))
-			#print('ppl: '+str(self.ppl))
+			result=self.letter2Teams(self.teamConfig)
+			for player in self.ppl:
+				if player in self.preSpectors:
+					self.ppl[player]['isSpector'] = True
 			for player in self.ppl:                      #apply team designation to ppl matrix
 				try:
 					self.ppl[player]['team']=result[player]
@@ -144,9 +150,9 @@ class Battle(threading.Thread):
 				print(colored('[WARN]', 'red'), colored(self.username+': leader config'+self.leaderConfig+" is not valid.", 'white'))
 				
 						
-			print('player custom config'+str(self.ppl))
+			#print('player custom config'+str(self.ppl))
 			print(colored('[INFO]', 'green'), colored(self.username+': player custom config'+str(self.ppl), 'white'))
-			self.gemStart()
+			
 			
 	def parseIngameMsg(self, msg):
 		toHandle = msg.split(r'\r')[1]
@@ -168,11 +174,14 @@ class Battle(threading.Thread):
 		return user, message
 
 	def stateDump(self,isLoading=False):
-		
-		if isLoading:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment, 'ingameChat': self.ingameChatMsg + ' '}))
-		else:
-			self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment, 'ingameChat': self.ingameChatMsg + ' '}))
+		try:
+			if isLoading:
+				self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':'all', 'teams':self.teamConfig,'engineToken':self.engineToken, 'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig,'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment,'spectator': ' '.join(self.preSpectors), 'ingameChat': self.ingameChatMsg + ' '}))
+			else:
+				self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'false','user':'all', 'teams':self.teamConfig, 'engineToken':self.engineToken,'available-maps': self.mapList, 'totalPpl':str(len(self.client.getUserinChat(self.bid,self.username,''))),'leader': self.leaderConfig, 'map':self.map_name, 'hoster': str(self.hostedby), 'comment': self.comment,'spectator': ' '.join(self.preSpectors), 'ingameChat': self.ingameChatMsg + ' '}))
+		except:
+			pass
+		self.ingameChatMsg=''
 	
 	def joinasSpec(self,usrName):
 		self.client.sayChat('bus',lib.cmdInterpreter.cmdWrite('lobbyctl', {'room':self.bid,'loading':'true','user':usrName,'engineToken':self.engineToken,'joinasSpec':'true '}))
@@ -206,50 +215,60 @@ class Battle(threading.Thread):
 		self.ppl = {}
 		self.spectors = {}
 
-		self.preSpectors = []
+		self.preSpectors = ['']
 
 		self.client.joinChat('bus')
 		print(colored('[INFO]', 'green'), colored(self.username+': Joining Battle Chat.', 'white'))
 		self.client.sayChat('bus', self.listMap()+" ")
 		self.client.clearBuffer(self.username)
 		
-		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort,self.hostedby,self.bid)
+		self.autohostServer= AutohostServer('0.0.0.0',2000+self.battlePort,self.hostedby,self.bid,self.deliver,self.username)
 		self.autohostServer.start()
-		
+		self.client.stopBattle()
 		while True:
-			ctl = deliver.get()
+			ctl = self.deliver.get()
 			#print('aaa')
 			
 			if ctl["bid"] != self.bid:    #do nothing if its not my business
 				#deliver.task_done()
 				print(colored('[WARN]', 'red'), colored(self.username+' New Msg from'+ctl['caller']+': '+ctl['msg']+' marked as '+ctl["bid"]+' does not belong to this autohost, halting'+self.bid, 'white'))
-				deliver.put(ctl)
-				deliver.join()
+				#self.deliver.put(ctl)  #dont
+				#self.deliver.join()
 				
 				#else:
 				
 
 			else:   #do the following if the bid matches mine
-				#print(ctl)
-				deliver.task_done()
+				##everyone commands, commands that everyone can run
 				if ctl['action'] == 'specOrder':
 					if self.server.engineAlive():
-						print(colored('[ERRO]', 'red'), ": engine started, spec order failed.")
-					toBeSpec = ctl['msg'].split(' ')
-					if ctl['caller'] == self.hostedby:
-						for spector in toBeSpec:
-							if spector not in self.preSpectors:
-								self.preSpectors.append(spector)
-					elif ctl['caller'] in toBeSpec:
-						if ctl['caller'] not in self.preSpectors:
-							self.preSpectors.append(ctl['caller'])
+						#print(colored('[ERRO]', 'red'), ": engine started, spec order failed.")
+						print(colored('[WARN]', 'red'), colored(self.username+' : engine started, spec order failed.', 'white'))
+					
+					else:
+						toBeSpec = ctl['msg']
+						self.preSpectors.append(toBeSpec)
+						self.stateDump()
 
-					print(self.preSpectors)
+					continue
+					
+				if ctl['action'] == 'despecOrder':
+					if self.server.engineAlive():
+						#print(colored('[ERRO]', 'red'), ": engine started, unspec order failed.")
+						print(colored('[WARN]', 'red'), colored(self.username+' : engine started, unspec order failed.', 'white'))
+					else:
+						try:
+							toBeUnSpec = ctl['msg']
+							self.preSpectors.remove(toBeUnSpec)
+							#print('unspeccing, prespec: '+str(self.preSpectors))
+							self.stateDump()
+						except:
+							print(colored('[WARN]', 'red'), colored(self.username+' : Cant unspec when ur not speced', 'white'))
 
 					continue
 
 
-				if ctl['action'] == 'joinasSpec':     ##everyone commands, commands that everyone can run
+				if ctl['action'] == 'joinasSpec':     
 					if ctl['caller'] in [ppl.strip() for ppl in self.teamConfig.split(' ') ]:
 						self.rejoin(ctl['caller'])
 					else:
@@ -281,10 +300,12 @@ class Battle(threading.Thread):
 				if ctl['caller']==self.hostedby: #(non pollable&host only commands)
 					
 					if ctl["action"]=="left":
+						
 						self.gemStop()
+						
 						self.client.exit()
 						self.autohost.free_autohost(self.username)
-						recordThisReplay(str(datetime.datetime.utcnow()), self.map_name.replace('🦔', ' '), self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02')
+						recordThisReplay(str(datetime.datetime.utcnow()), self.map_name.replace('🦔', ' '), self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02',self.username)
 						self.bid=-1
 						# exit thread
 						return
@@ -314,6 +335,7 @@ class Battle(threading.Thread):
 							self.unitSync.startHeshThread(self.map_file,self.mod_file)
 							unit_sync = self.unitSync.getResult()
 							self.client.updateBInfo(unit_sync['mapHesh'],self.map_name)
+							self.stateDump()
 							print(colored('[INFO]', 'green'), colored(self.username+': chmapping to '+self.map_name, 'white'))
 							print(colored('[INFO]', 'green'), colored(self.username+': fileName is '+self.map_file, 'white'))
 						except:
@@ -322,19 +344,15 @@ class Battle(threading.Thread):
 
 					if ctl["action"]=="start":
 						self.ppl=self.client.getUserinChat(self.bid,self.username,self.teamConfig)
-
-						for player in self.ppl:
-							if player in self.preSpectors:
-								self.ppl[player]['isSpector'] = True
-
 						#print(self.ppl)
 						self.pplIngameCount = self.getPplMaxIndex()
 						#print(colored('[INFO]', 'cyan'), "ppl: ", self.ppl)
-						self.balance('custom',self.leaderConfig,self.teamConfig)
+						self.balance('custom')
+						self.gemStart()
 						
 					if ctl["action"]=="exit":
 						print(colored('[INFO]', 'green'), colored(self.username+': Exiting', 'white'))
-						recordThisReplay(str(datetime.datetime.utcnow()), self.map_name.replace('🦔', ' '), self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02')
+						recordThisReplay(str(datetime.datetime.utcnow()), self.map_name.replace('🦔', ' '), self.hostedby,'unknown', str(self.ppl),'unknown', 'unknown',0,'01:30:02',self.username)
 						self.gemStop()
 						
 					if ctl["action"]=="teams":

@@ -75,7 +75,10 @@ class Client():
 			try:
 				self.network.send(command)
 				if lib.quirks.hosterCTL.isInetDebug:
-					print(colored('[INET]', 'grey'), colored(username+': keeping alive', 'white'))
+					print(colored('[INET]', 'grey','on_green'), colored(username+': keeping alive', 'white', 'on_green'))
+				else:
+					#print(colored('[INET]', 'grey','on_green'), colored(username+': keeping alive', 'white', 'on_green'),end = "\r")
+					pass
 				time.sleep(10)
 			except:
 				return;
@@ -147,8 +150,10 @@ class Client():
 		while(self.network.hasCmd()):
 			#self.network.nextCmd()
 			if lib.quirks.hosterCTL.isInetDebug:
+				#print(lib.quirks.hosterCTL.isInetDebug)
 				print(colored('[INET]', 'grey'), colored(username+': '+self.network.nextCmd(), 'white'))
 			else:
+				#print(colored('[INET]', 'grey'), colored(username+': '+self.network.nextCmd(), 'white'),end = "\r")
 				self.network.nextCmd()
 				
 	def __decimalToBinary(self, n): 
