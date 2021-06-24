@@ -12,7 +12,7 @@ from lib.quirks.hosterCTL import hosterPool
 #from multiprocessing import SimpleQueue
 password = b'password'
 map_file = 'Comet'
-mod_file = 'Zero-K-master.sdd'
+mod_file = 'mod.sdd'
 engineName = 'Spring'
 engineVersion = '104.0.1-1435-g79d77ca maintenance'
 gameName = 'Zero-K v1.8.3.5'

@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from termcolor import colored
 
 def recordThisReplay (dateTime,nameofMap,host,hostIP,playerTeam,playerIP, playerinGameIP,wonTeam,timeElapsed,username):
-	engine = create_engine('mysql://lobbyServer:lobbyServer@localhost/lobbyServer',encoding='utf-8')
+	engine = create_engine('mysql://lobbyServer:lobbyServer@localhost/lobbyServer?charset=utf8',encoding='utf-8')
 	Session = sessionmaker(bind=engine)
 	session = Session()
 

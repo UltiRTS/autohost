@@ -148,7 +148,7 @@ class ServerLauncher():
 	#########GAME SELECTOR MODULE###############################	
 		print("game type is zk")
 
-		game.addFromDict({"Gametype": "Zero-K-master.sdd"})
+		game.addFromDict({"Gametype": "mod.sdd"})
 	
 	#########startposi selector MODULE###############################	
 		print("start position is   startpostype=2;")###IDK what this module does
