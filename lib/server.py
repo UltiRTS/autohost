@@ -4,6 +4,7 @@ from lib.quirks.serverNetwork import serverNetwork
 
 
 import re
+import struct
 
 
 chatMsgPatt = re.compile(r".*\\r\\x[0-9]{2}\\xfe")
@@ -22,7 +23,19 @@ class AutohostServer(threading.Thread):
 
     def autohostInterfaceSayChat(self, msg):
         self.serverNetwork.send(msg)
-       
+
+    def retrieveInfo(self, buf, prefix=b'\r\x00\xfe'):
+	prefix_len = len(prefix)
+	buf_len = len(buf)
+	unpacked = struct.unpack('{}s{}s'.format(prefix_len, buf_len - prefix_len), buf)
+	     
+	res = None
+
+	if prefix == b'\r\x00\xfe':
+	    res = unpacked[-1].decode('utf8')
+
+	return res
+
 
     def run(self):
         while True:
@@ -42,11 +55,7 @@ class AutohostServer(threading.Thread):
                     self.deliver.put(ctl)
 
                 if receivedMsg[0:3] == b'\r\x00\xfe':
-                    print("1")
-
-                if re.match(chatMsgPatt, receivedMsg):
-                    #receivedMsg = receivedMsg[12:-1]
-                    #print(colored('[INFO]', 'cyan'), "received: ", receivedMsg)
+                    msg2relay = self.retrieveInfo(receivedMsg)
                     print(
                         colored(
                             '[INFO]',
@@ -58,7 +67,7 @@ class AutohostServer(threading.Thread):
                             'white'))
                     ctl = {
                         "bid": self.bid,
-                        "msg": receivedMsg,
+                        "msg": msg2relay,
                         "caller": self.hostedby,
                         "ttl": 0,
                         "action": 'sayBtlRoom'
