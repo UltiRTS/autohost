@@ -25,18 +25,18 @@ class AutohostServer(threading.Thread):
         self.serverNetwork.send(msg)
 
     def retrieveInfo(self, buf, prefix=b'\r\x00\xfe'):
-        prefix_len = len(prefix)
-        buf_len = len(buf)
-        unpacked = struct.unpack(
-            '{}s{}s'.format(
-                prefix_len,
-                buf_len -
-                prefix_len),
-            buf)
 
-        res = None
+        res = ""
 
         if prefix == b'\r\x00\xfe':
+            prefix_len = len(prefix)
+            buf_len = len(buf)
+            unpacked = struct.unpack(
+                '{}s{}s'.format(
+                    prefix_len,
+                    buf_len -
+                    prefix_len),
+                buf)
             res = unpacked[-1].decode('utf8')
 
         return res
