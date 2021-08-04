@@ -155,11 +155,19 @@ class AutohostServer(threading.Thread):
 			}
 		# player has been defeated (uchar playernumber)
 		if header == 14:
-			playernumber = ctypes.c_uint8(body)
+			
+			class Info(ctypes.Structure):
+				_fields_ = [('playernumber', ctypes.c_uint8)]
+
+			info = Info.from_buffer(body)
 			return {
 				'type': 'defeat',
-				'playernumber': int(playernumber)
+				'playernumber': info.playernumber
 			}
+			
+			
+			
+
 		# brief message sent by lua script
 		# (uchar playernumber, uint16_t script, uint8_t mode, uint8_t[X] data)
 		# (X = space left in packet)
@@ -172,10 +180,7 @@ class AutohostServer(threading.Thread):
 							("mode", ctypes.c_uint8),
 							("data", ctypes.c_uint8 * (len(body) - 3)),]
 			
-	#		if ctypes.sizeof(Info) != len(body):
-	#			raise Exception("Can't conversion except {} but got {}".format(ctypes.sizeof(Info), len(body)))
 
-	#		info = Info.from_buffer(body)
 			info = Info.from_buffer(body)
 
 			return {
