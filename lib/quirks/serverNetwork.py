@@ -47,7 +47,7 @@ class serverNetwork:
 		
 		#try:
 		
-		recvData=repr(newData).split('\n')
+		recvData=newData.split(b'\n')
 		if len(recvData) > 0:
 			for i in range(len(recvData)):
 				self.cmd_queue.put(recvData[i])

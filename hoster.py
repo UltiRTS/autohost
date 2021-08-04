@@ -154,13 +154,10 @@ class Battle(threading.Thread):
 			print(colored('[INFO]', 'green'), colored(self.username+': player custom config'+str(self.ppl), 'white'))
 			
 			
-	def parseIngameMsg(self, msg):
-		toHandle = msg.split(r'\r')[1]
-		userIdStr = toHandle[2:4]
-		userId = int(userIdStr, 16)
-		message = toHandle[8:-1]
+	def parseIngameMsg(self, userId):
+
 		chatUser = None
-		print(self.ppl)
+		#print(self.ppl)
 		for user, uInfo in self.ppl.items():
 			if uInfo['index'] == userId:
 				chatUser = user
@@ -169,9 +166,9 @@ class Battle(threading.Thread):
 		if userId in self.spectors.keys():
 			chatUser = self.spectors[userId]
 
-		print("userid: ", userId, " User: ", chatUser)
+		#print("userid: ", userId, " User: ", chatUser)
 
-		return user, message
+		return user
 
 	def stateDump(self,isLoading=False):
 		try:
@@ -290,8 +287,9 @@ class Battle(threading.Thread):
 					continue
 						
 				if ctl['action'] == 'sayBtlRoom': 		
-					print("GOT: ", ctl['msg'])
-					user, message = self.parseIngameMsg(ctl['msg'])
+					#print("GOT: ", ctl['msg'])
+					user = self.parseIngameMsg(ctl['caller'])
+					message=ctl['msg']
 					self.ingameChatMsg = user + ' ' + message
 					self.stateDump()
 					#self.autohostCTL.sayChat(str(self.bid),user + " said: " + message)
