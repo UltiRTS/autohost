@@ -47,10 +47,9 @@ class serverNetwork:
 		
 		#try:
 		
-		recvData=newData.split(b'\n')
+		recvData=newData
 		if len(recvData) > 0:
-			for i in range(len(recvData)):
-				self.cmd_queue.put(recvData[i])
+			self.cmd_queue.put(recvData)
 		else:
 			print('%sconnection closed' % newAddr[0])
 		#except:
